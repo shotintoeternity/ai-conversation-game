@@ -6,6 +6,7 @@ const sceneImage = document.getElementById('sceneImage');
 const imageStatus = document.getElementById('imageStatus');
 
 let conversation = [];
+let characters = {}; // Track all characters throughout the adventure
 
 function appendMessage(sender, text) {
   const div = document.createElement('div');
@@ -44,7 +45,7 @@ async function sendMessage() {
     const resp = await fetch('/api/message', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: text, conversation })
+      body: JSON.stringify({ message: text, conversation, characters })
     });
 
     if (!resp.ok) throw new Error('Server error');
@@ -56,6 +57,11 @@ async function sendMessage() {
     
     appendMessage('Luna', data.text);
     conversation.push({ role: 'assistant', content: data.text });
+    
+    // Update character database
+    if (data.characters) {
+      characters = data.characters;
+    }
 
     const audioSrc = `data:audio/mpeg;base64,${data.audio}`;
     fairyAudio.src = audioSrc;
@@ -113,6 +119,11 @@ window.addEventListener('load', async () => {
       
       appendMessage('Luna', data.text);
       conversation.push({ role: 'assistant', content: data.text });
+      
+      // Update character database
+      if (data.characters) {
+        characters = data.characters;
+      }
 
       const audioSrc = `data:audio/mpeg;base64,${data.audio}`;
       fairyAudio.src = audioSrc;

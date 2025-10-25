@@ -37,8 +37,9 @@ CHARACTER TRACKING:
 - When introducing a NEW character, weave their physical description naturally into your storytelling (hair, eyes, clothing, distinctive features)
 - Example: "A tall warrior with piercing blue eyes and a jagged scar across his cheek approaches - he introduces himself as Kael."
 - ALSO include a hidden detailed description in <character_description> tags AFTER your visible response for image consistency
-- Format: <character_description name="Character Name">Complete physical details: hair color/style, eye color, clothing description, distinctive features, build, age, etc.</character_description>
-- Example visible + hidden: "You meet an elven archer with silver hair and emerald eyes, wearing dark leather armor." <character_description name="Aria">Long silver hair in a braid, emerald green eyes, tall athletic build, dark leather armor with intricate elven leaf designs, pointed ears, fair skin, elegant features, appears early twenties</character_description>
+- Format: <character_description name="Character Name">DETAILED physical appearance - MUST include: exact skin tone (fair/tan/olive/brown/dark/etc), precise hair color and style, exact eye color, complete outfit description with colors and materials, body build, distinctive features, apparent age</character_description>
+- Example: "You meet an elven archer named Aria." <character_description name="Aria">Fair porcelain skin, long silver hair in a braid down to waist, bright emerald green eyes, tall slender athletic build 5'8", wearing dark forest-green leather armor with gold elven leaf embroidery, brown leather belt with silver buckle, black boots, pointed elf ears, elegant angular features, appears early twenties</character_description>
+- BE VERY SPECIFIC about skin tone, hair color, and outfit colors/materials - these are critical for visual consistency
 - The hidden tags maintain visual consistency across images - players only see the natural story descriptions
 - Reference both the name and appearance details when characters reappear`;
 const VOICE_ID = process.env.ELEVENLABS_VOICE_ID || 'cgSgspJ2msm6clMCkdW9';
@@ -46,9 +47,13 @@ const VOICE_ID = process.env.ELEVENLABS_VOICE_ID || 'cgSgspJ2msm6clMCkdW9';
 // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
+// Store character descriptions across the session
+const characterDatabase = new Map();
+
 app.post('/api/message', async (req, res) => {
   const userMessage = req.body.message;
   const conversation = req.body.conversation || [];
+  const sessionCharacters = req.body.characters || {};
 
   try {
     // Use pre-generated default assets for initial greeting (instant loading)
@@ -86,16 +91,16 @@ app.post('/api/message', async (req, res) => {
     const groqData = await groqResp.json();
     const fullResponse = groqData.choices[0].message.content.trim();
     
-    // Extract character descriptions (hidden from player)
-    const characterDescriptions = [];
+    // Extract NEW character descriptions from this response
+    const newCharacters = {};
     const charRegex = /<character_description name="([^"]+)">([^<]+)<\/character_description>/g;
     let match;
     while ((match = charRegex.exec(fullResponse)) !== null) {
-      characterDescriptions.push({
-        name: match[1],
-        description: match[2]
-      });
+      newCharacters[match[1]] = match[2];
     }
+    
+    // Merge with existing characters from session
+    const allCharacters = { ...sessionCharacters, ...newCharacters };
     
     // Remove character description tags from player-visible text
     const fairyText = fullResponse.replace(/<character_description[^>]*>.*?<\/character_description>/g, '').trim();
@@ -121,13 +126,14 @@ app.post('/api/message', async (req, res) => {
     let imageUrl = null;
     let imageError = null;
     try {
-      // Build character context for image consistency
+      // Build character context from ALL known characters for consistency
       let characterContext = '';
-      if (characterDescriptions.length > 0) {
-        characterContext = characterDescriptions.map(c => `${c.name}: ${c.description}`).join('. ') + '. ';
+      const characterEntries = Object.entries(allCharacters);
+      if (characterEntries.length > 0) {
+        characterContext = 'Characters present: ' + characterEntries.map(([name, desc]) => `${name} (${desc})`).join('; ') + '. ';
       }
       
-      const imagePrompt = `Hyperrealistic fantasy scene. ${characterContext}Scene: ${fairyText.substring(0, 400)}. Style: photorealistic with fantastical elements, cinematic lighting, highly detailed, vivid colors, magical realism. IMPORTANT: No text, no words, no letters, no captions, no subtitles, no writing, no signs, no labels - pure visual imagery only.`;
+      const imagePrompt = `Hyperrealistic fantasy scene. ${characterContext}Scene: ${fairyText.substring(0, 350)}. Style: photorealistic rendering with fantastical elements, cinematic lighting, highly detailed, vivid colors, magical realism. IMPORTANT: No text, no words, no letters, no captions, no subtitles, no writing, no signs, no labels - pure visual imagery only.`;
       
       const imageResp = await openai.images.generate({
         model: 'dall-e-3',
@@ -146,7 +152,7 @@ app.post('/api/message', async (req, res) => {
       }
     }
 
-    res.json({ text: fairyText, audio: audioBase64, image: imageUrl, imageError });
+    res.json({ text: fairyText, audio: audioBase64, image: imageUrl, imageError, characters: allCharacters });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to fetch response' });
