@@ -10,7 +10,14 @@ let conversation = [];
 function appendMessage(sender, text) {
   const div = document.createElement('div');
   div.className = sender === 'You' ? 'message user-message' : 'message fairy-message';
-  div.textContent = `${sender}: ${text}`;
+  
+  // Use innerHTML for Luna to allow bold formatting
+  if (sender === 'Luna') {
+    div.innerHTML = `<strong>Luna</strong>: ${text}`;
+  } else {
+    div.textContent = `${sender}: ${text}`;
+  }
+  
   messagesDiv.appendChild(div);
   messagesDiv.scrollTop = messagesDiv.scrollHeight;
 }
@@ -47,7 +54,7 @@ async function sendMessage() {
     const loadingMsg = document.getElementById('loadingMessage');
     if (loadingMsg) loadingMsg.remove();
     
-    appendMessage('Fairy', data.text);
+    appendMessage('Luna', data.text);
     conversation.push({ role: 'assistant', content: data.text });
 
     const audioSrc = `data:audio/mpeg;base64,${data.audio}`;
@@ -99,7 +106,7 @@ window.addEventListener('load', async () => {
       if (!resp.ok) throw new Error('Server error');
       const data = await resp.json();
       
-      appendMessage('Fairy', data.text);
+      appendMessage('Luna', data.text);
       conversation.push({ role: 'assistant', content: data.text });
 
       const audioSrc = `data:audio/mpeg;base64,${data.audio}`;

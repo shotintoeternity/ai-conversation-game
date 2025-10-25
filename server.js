@@ -44,7 +44,7 @@ app.post('/api/message', async (req, res) => {
   try {
     // Use pre-generated default assets for initial greeting (instant loading)
     if (conversation.length === 0 && userMessage === '') {
-      const fairyText = "Hello, brave adventurer! I'm Luna, your fairy guide. What kind of magical journey shall we create together today?";
+      const fairyText = "Greetings, adventurer! I'm Luna. This is your adventure—your world, your rules—and I'll help you shape it.\n\nTell me the mood, our first step, and what you wish to attempt; I'll open the veil, set the scene, and offer clear paths while you decide what unfolds.\n\nChoose your realm: a dark cyberpunk sprawl of hackers and ghost-code, a fantasy court of sorcerer princes and elven princesses.\n\nOr you could help solve a ticking mystery on a night train, travel to sky islands in a clockwork city where hours are currency, visit an undersea cathedral lit by oracles, a haunted carnival that only starts at midnight—or anything else you can imagine.\n\nBring whatever companions you desire—even the possibility of romance—and I'll lay the first stone beneath your feet.";
       const audioBuffer = fs.readFileSync(path.join(__dirname, 'public', 'default-greeting.mp3'));
       const audioBase64 = audioBuffer.toString('base64');
       const imageUrl = '/default-greeting.png';
