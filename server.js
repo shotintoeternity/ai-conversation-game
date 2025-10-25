@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const fetch = require('node-fetch');
 const path = require('path');
+const OpenAI = require('openai');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -11,6 +12,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 const SYSTEM_PROMPT = "You are a whimsical fairy that serves as a dungeon master guiding the player through a fantasy text adventure.";
 const VOICE_ID = process.env.ELEVENLABS_VOICE_ID || 'EXAVITQu4vr4xnSDxMaL';
+
+// the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 app.post('/api/message', async (req, res) => {
   const userMessage = req.body.message;
@@ -58,7 +62,24 @@ app.post('/api/message', async (req, res) => {
     const arrayBuffer = await ttsResp.arrayBuffer();
     const audioBase64 = Buffer.from(arrayBuffer).toString('base64');
 
-    res.json({ text: fairyText, audio: audioBase64 });
+    // Generate scene image based on the fairy's response
+    let imageUrl = null;
+    try {
+      const imagePrompt = `A whimsical fantasy scene illustration: ${fairyText.substring(0, 500)}. Style: colorful, magical, storybook illustration.`;
+      const imageResp = await openai.images.generate({
+        model: 'dall-e-3',
+        prompt: imagePrompt,
+        n: 1,
+        size: '1024x1024',
+        quality: 'standard'
+      });
+      imageUrl = imageResp.data[0].url;
+    } catch (imgErr) {
+      console.error('Image generation error:', imgErr);
+      // Continue without image if generation fails
+    }
+
+    res.json({ text: fairyText, audio: audioBase64, image: imageUrl });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to fetch response' });

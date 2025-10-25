@@ -30,11 +30,15 @@ A text-based fantasy adventure game powered by AI. Features a whimsical fairy du
 - Updated server to use port 5000 with host 0.0.0.0
 - Configured workflow for automatic server start
 - Set up API keys via Replit Secrets
+- **Added DALL-E 3 image generation** - Each fairy response now includes a scene illustration
+- Updated UI with split-panel layout for chat and images
+- Upgraded AI model from Mixtral to Llama 3.3 70B
 
 ## How It Works
 1. User types a message in the chat interface
 2. Frontend sends message + conversation history to `/api/message`
-3. Backend calls Groq API to generate fairy's response
+3. Backend calls Groq API (Llama 3.3) to generate fairy's response
 4. Backend converts text response to audio via ElevenLabs
-5. Frontend displays text and plays audio response
-6. Conversation continues with full context
+5. Backend generates scene illustration via OpenAI DALL-E 3
+6. Frontend displays text, plays audio, and shows the generated image
+7. Conversation continues with full context

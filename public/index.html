@@ -4,17 +4,84 @@
   <meta charset="UTF-8">
   <title>Fairy Adventure</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    #messages { height: 300px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; }
-    #userInput { width: 80%; }
+    body { 
+      font-family: Arial, sans-serif; 
+      margin: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    #container {
+      display: flex;
+      gap: 20px;
+    }
+    #leftPanel {
+      flex: 1;
+      min-width: 400px;
+    }
+    #rightPanel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    #messages { 
+      height: 400px; 
+      overflow-y: auto; 
+      border: 1px solid #ccc; 
+      padding: 10px;
+      margin-bottom: 10px;
+      background: #f9f9f9;
+    }
+    #userInput { 
+      width: 70%; 
+      padding: 8px;
+    }
+    #sendBtn {
+      padding: 8px 20px;
+      cursor: pointer;
+    }
+    #sceneImage {
+      max-width: 100%;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      margin-top: 20px;
+    }
+    .message {
+      margin: 8px 0;
+      padding: 8px;
+      border-radius: 4px;
+    }
+    .user-message {
+      background: #e3f2fd;
+    }
+    .fairy-message {
+      background: #f3e5f5;
+    }
+    @media (max-width: 768px) {
+      #container {
+        flex-direction: column;
+      }
+    }
   </style>
 </head>
 <body>
   <h1>Fairy Adventure</h1>
-  <div id="messages"></div>
-  <input type="text" id="userInput" placeholder="Type your message...">
-  <button id="sendBtn">Send</button>
-  <audio id="fairyAudio" controls style="display:none;"></audio>
+  <div id="container">
+    <div id="leftPanel">
+      <div id="messages"></div>
+      <div>
+        <input type="text" id="userInput" placeholder="Type your message...">
+        <button id="sendBtn">Send</button>
+      </div>
+      <audio id="fairyAudio" controls style="margin-top: 10px;"></audio>
+    </div>
+    <div id="rightPanel">
+      <h3>Scene Illustration</h3>
+      <img id="sceneImage" style="display:none;" alt="Fantasy scene">
+      <p id="imageStatus">Images will appear here as the story unfolds...</p>
+    </div>
+  </div>
   <script src="script.js"></script>
 </body>
 </html>
