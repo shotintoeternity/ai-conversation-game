@@ -11,16 +11,16 @@
     }
     body { 
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: #1a1a1a;
       min-height: 100vh;
       padding: 20px;
     }
     h1 {
       text-align: center;
-      color: white;
+      color: #e0e0e0;
       font-size: 2.5em;
       margin-bottom: 30px;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
     }
     #container {
       display: flex;
@@ -31,10 +31,10 @@
     #leftPanel {
       flex: 1;
       min-width: 400px;
-      background: white;
+      background: #2d2d2d;
       border-radius: 16px;
       padding: 20px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
       display: flex;
       flex-direction: column;
       height: 700px;
@@ -45,10 +45,10 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      background: white;
+      background: #2d2d2d;
       border-radius: 16px;
       padding: 20px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
       height: 700px;
       max-height: 700px;
     }
@@ -58,23 +58,23 @@
       overflow-x: hidden;
       padding: 15px;
       margin-bottom: 15px;
-      background: #f8f9fa;
+      background: #1e1e1e;
       border-radius: 12px;
-      border: 2px solid #e9ecef;
+      border: 2px solid #404040;
     }
     #messages::-webkit-scrollbar {
       width: 8px;
     }
     #messages::-webkit-scrollbar-track {
-      background: #f1f1f1;
+      background: #2d2d2d;
       border-radius: 10px;
     }
     #messages::-webkit-scrollbar-thumb {
-      background: #888;
+      background: #555;
       border-radius: 10px;
     }
     #messages::-webkit-scrollbar-thumb:hover {
-      background: #555;
+      background: #777;
     }
     .inputContainer {
       display: flex;
@@ -84,15 +84,17 @@
     #userInput { 
       flex: 1;
       padding: 12px 16px;
-      border: 2px solid #e9ecef;
+      border: 2px solid #404040;
       border-radius: 25px;
       font-size: 15px;
       outline: none;
       transition: all 0.3s;
+      background: #1e1e1e;
+      color: #e0e0e0;
     }
     #userInput:focus {
       border-color: #667eea;
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
     }
     #sendBtn {
       padding: 12px 30px;
@@ -138,17 +140,17 @@
       margin-left: 20px;
     }
     .fairy-message {
-      background: #f0f0f0;
-      color: #333;
+      background: #3a3a3a;
+      color: #e0e0e0;
       margin-right: 20px;
     }
     #imageStatus {
-      color: #666;
+      color: #999;
       font-style: italic;
       margin-top: 15px;
     }
     .rightPanel h3 {
-      color: #333;
+      color: #e0e0e0;
       margin-bottom: 10px;
       font-size: 1.3em;
     }
@@ -158,14 +160,14 @@
       border-radius: 8px;
     }
     .loadingMessage {
-      background: #fff3cd;
-      color: #856404;
+      background: #3a3a3a;
+      color: #f5d97f;
       padding: 12px 16px;
       border-radius: 12px;
       margin: 10px 0;
       text-align: center;
       font-weight: 500;
-      border: 2px solid #ffeaa7;
+      border: 2px solid #5a5a5a;
       animation: pulse 1.5s infinite;
     }
     @keyframes pulse {
