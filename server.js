@@ -32,7 +32,7 @@ During the adventure:
 - Ask questions to keep them engaged
 - Remember their choices and preferences
 - If they say "create the adventure" or similar, take creative control and start generating the story for them`;
-const VOICE_ID = process.env.ELEVENLABS_VOICE_ID || 'EXAVITQu4vr4xnSDxMaL';
+const VOICE_ID = process.env.ELEVENLABS_VOICE_ID || 'cgSgspJ2msm6clMCkdW9';
 
 // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
