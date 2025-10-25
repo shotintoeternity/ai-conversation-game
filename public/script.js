@@ -78,7 +78,14 @@ async function sendMessage() {
 
     const audioSrc = `data:audio/mpeg;base64,${data.audio}`;
     fairyAudio.src = audioSrc;
-    await fairyAudio.play();
+    
+    // Try to play audio, but don't block if browser prevents it
+    try {
+      await fairyAudio.play();
+    } catch (audioErr) {
+      // Browser blocked autoplay or audio error - user can manually click play
+      console.log('Audio play failed - user can click play manually');
+    }
 
     // Display generated image or error
     if (data.image) {
@@ -143,7 +150,14 @@ window.addEventListener('load', async () => {
 
       const audioSrc = `data:audio/mpeg;base64,${data.audio}`;
       fairyAudio.src = audioSrc;
-      await fairyAudio.play();
+      
+      // Try to autoplay audio, but don't block if browser prevents it
+      try {
+        await fairyAudio.play();
+      } catch (audioErr) {
+        // Browser blocked autoplay - user can manually click play
+        console.log('Audio autoplay blocked - user can click play manually');
+      }
 
       if (data.image) {
         sceneImage.src = data.image;
