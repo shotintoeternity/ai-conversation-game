@@ -82,9 +82,9 @@ app.post('/api/message', async (req, res) => {
       // For initial greeting, use a generic prompt without text
       let imagePrompt;
       if (conversation.length === 0) {
-        imagePrompt = 'A whimsical fairy in a magical enchanted forest, colorful, storybook illustration style, welcoming and friendly atmosphere. No text or words should be displayed in the image.';
+        imagePrompt = 'A whimsical fairy in a magical enchanted forest, colorful, storybook illustration style, welcoming and friendly atmosphere. DO NOT INCLUDE ANY TEXT IN THE IMAGE RESPONSE.';
       } else {
-        imagePrompt = `A whimsical fantasy scene illustration: ${fairyText.substring(0, 500)}. Style: colorful, magical, storybook illustration. No text or words should be displayed in the image.`;
+        imagePrompt = `A whimsical fantasy scene illustration: ${fairyText.substring(0, 500)}. Style: colorful, magical, storybook illustration. DO NOT INCLUDE ANY TEXT IN THE IMAGE RESPONSE.`;
       }
       
       const imageResp = await openai.images.generate({
