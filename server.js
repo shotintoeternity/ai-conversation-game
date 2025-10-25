@@ -33,11 +33,13 @@ During the adventure:
 - Remember their choices and preferences
 - If they say "create the adventure" or similar, take creative control and start generating the story for them
 
-CHARACTER TRACKING (INTERNAL - DO NOT SHOW TO PLAYER):
-- When introducing a NEW character, include a detailed physical description in <character_description> tags
-- Format: <character_description name="Character Name">Detailed appearance: hair color, eye color, clothing, distinctive features, build, etc.</character_description>
-- These descriptions are for story consistency and image generation - the player will NOT see them
-- Reference these descriptions when the character reappears to maintain consistency`;
+CHARACTER TRACKING:
+- When introducing a NEW character, introduce them by NAME in your response to the player
+- ALSO include a hidden detailed physical description in <character_description> tags AFTER your visible response
+- Format: <character_description name="Character Name">Detailed appearance: hair color, eye color, clothing, distinctive features, build, age, etc.</character_description>
+- Example: "You meet a mysterious elven warrior named Aria." <character_description name="Aria">Long silver hair, emerald green eyes, tall and athletic build, wearing dark leather armor with intricate elven designs, pointed ears, fair skin, appears to be in her twenties</character_description>
+- The character descriptions in tags are ONLY for maintaining visual consistency in images - the player will NOT see them
+- Always reference character names and these descriptions when characters reappear`;
 const VOICE_ID = process.env.ELEVENLABS_VOICE_ID || 'cgSgspJ2msm6clMCkdW9';
 
 // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
