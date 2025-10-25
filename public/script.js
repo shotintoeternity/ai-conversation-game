@@ -22,7 +22,14 @@ async function sendMessage() {
   conversation.push({ role: 'user', content: text });
   userInput.value = '';
 
-  // Show loading status
+  // Show loading message
+  const loadingDiv = document.createElement('div');
+  loadingDiv.className = 'loadingMessage';
+  loadingDiv.textContent = '✨ Please wait while AI is working its magic... ✨';
+  loadingDiv.id = 'loadingMessage';
+  messagesDiv.appendChild(loadingDiv);
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  
   imageStatus.textContent = 'Generating scene illustration...';
   sendBtn.disabled = true;
   
@@ -35,6 +42,11 @@ async function sendMessage() {
 
     if (!resp.ok) throw new Error('Server error');
     const data = await resp.json();
+    
+    // Remove loading message
+    const loadingMsg = document.getElementById('loadingMessage');
+    if (loadingMsg) loadingMsg.remove();
+    
     appendMessage('Fairy', data.text);
     conversation.push({ role: 'assistant', content: data.text });
 
@@ -51,6 +63,10 @@ async function sendMessage() {
       imageStatus.textContent = 'Image generation unavailable for this response.';
     }
   } catch (err) {
+    // Remove loading message
+    const loadingMsg = document.getElementById('loadingMessage');
+    if (loadingMsg) loadingMsg.remove();
+    
     appendMessage('Error', 'Failed to get a response.');
     imageStatus.textContent = 'Error generating image.';
     console.error(err);
@@ -70,6 +86,13 @@ userInput.addEventListener('keydown', (e) => {
 // Auto-start the game with fairy's introduction
 window.addEventListener('load', async () => {
   if (conversation.length === 0) {
+    // Show loading message
+    const loadingDiv = document.createElement('div');
+    loadingDiv.className = 'loadingMessage';
+    loadingDiv.textContent = '✨ Please wait while AI is working its magic... ✨';
+    loadingDiv.id = 'loadingMessage';
+    messagesDiv.appendChild(loadingDiv);
+    
     imageStatus.textContent = 'Welcome! Starting your adventure...';
     sendBtn.disabled = true;
     
@@ -82,6 +105,11 @@ window.addEventListener('load', async () => {
 
       if (!resp.ok) throw new Error('Server error');
       const data = await resp.json();
+      
+      // Remove loading message
+      const loadingMsg = document.getElementById('loadingMessage');
+      if (loadingMsg) loadingMsg.remove();
+      
       appendMessage('Fairy', data.text);
       conversation.push({ role: 'user', content: 'Hello!' });
       conversation.push({ role: 'assistant', content: data.text });
