@@ -34,12 +34,13 @@ During the adventure:
 - If they say "create the adventure" or similar, take creative control and start generating the story for them
 
 CHARACTER TRACKING:
-- When introducing a NEW character, introduce them by NAME in your response to the player
-- ALSO include a hidden detailed physical description in <character_description> tags AFTER your visible response
-- Format: <character_description name="Character Name">Detailed appearance: hair color, eye color, clothing, distinctive features, build, age, etc.</character_description>
-- Example: "You meet a mysterious elven warrior named Aria." <character_description name="Aria">Long silver hair, emerald green eyes, tall and athletic build, wearing dark leather armor with intricate elven designs, pointed ears, fair skin, appears to be in her twenties</character_description>
-- The character descriptions in tags are ONLY for maintaining visual consistency in images - the player will NOT see them
-- Always reference character names and these descriptions when characters reappear`;
+- When introducing a NEW character, weave their physical description naturally into your storytelling (hair, eyes, clothing, distinctive features)
+- Example: "A tall warrior with piercing blue eyes and a jagged scar across his cheek approaches - he introduces himself as Kael."
+- ALSO include a hidden detailed description in <character_description> tags AFTER your visible response for image consistency
+- Format: <character_description name="Character Name">Complete physical details: hair color/style, eye color, clothing description, distinctive features, build, age, etc.</character_description>
+- Example visible + hidden: "You meet an elven archer with silver hair and emerald eyes, wearing dark leather armor." <character_description name="Aria">Long silver hair in a braid, emerald green eyes, tall athletic build, dark leather armor with intricate elven leaf designs, pointed ears, fair skin, elegant features, appears early twenties</character_description>
+- The hidden tags maintain visual consistency across images - players only see the natural story descriptions
+- Reference both the name and appearance details when characters reappear`;
 const VOICE_ID = process.env.ELEVENLABS_VOICE_ID || 'cgSgspJ2msm6clMCkdW9';
 
 // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
