@@ -41,29 +41,36 @@ app.post('/api/message', async (req, res) => {
   const conversation = req.body.conversation || [];
 
   try {
-    const groqResp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
-        messages: [
-          { role: 'system', content: SYSTEM_PROMPT },
-          ...conversation,
-          { role: 'user', content: userMessage }
-        ]
-      })
-    });
+    let fairyText;
+    
+    // Use optimized pre-written greeting for first message (faster loading)
+    if (conversation.length === 0 && userMessage === '') {
+      fairyText = "Hello, brave adventurer! I'm Luna, your fairy guide. What kind of magical journey shall we create together today?";
+    } else {
+      const groqResp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: 'llama-3.3-70b-versatile',
+          messages: [
+            { role: 'system', content: SYSTEM_PROMPT },
+            ...conversation,
+            { role: 'user', content: userMessage }
+          ]
+        })
+      });
 
-    if (!groqResp.ok) {
-      const errText = await groqResp.text();
-      throw new Error(`Groq API error: ${errText}`);
+      if (!groqResp.ok) {
+        const errText = await groqResp.text();
+        throw new Error(`Groq API error: ${errText}`);
+      }
+
+      const groqData = await groqResp.json();
+      fairyText = groqData.choices[0].message.content.trim();
     }
-
-    const groqData = await groqResp.json();
-    const fairyText = groqData.choices[0].message.content.trim();
 
     const ttsResp = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}`, {
       method: 'POST',
