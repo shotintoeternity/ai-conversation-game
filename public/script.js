@@ -61,13 +61,18 @@ async function sendMessage() {
     fairyAudio.src = audioSrc;
     await fairyAudio.play();
 
-    // Display generated image
+    // Display generated image or error
     if (data.image) {
       sceneImage.src = data.image;
       sceneImage.style.display = 'block';
       imageStatus.style.display = 'none';
+    } else if (data.imageError) {
+      imageStatus.textContent = `⚠️ ${data.imageError}`;
+      imageStatus.style.display = 'block';
+      imageStatus.style.color = '#ff9999';
     } else {
       imageStatus.textContent = 'Image generation unavailable for this response.';
+      imageStatus.style.display = 'block';
     }
   } catch (err) {
     // Remove loading message

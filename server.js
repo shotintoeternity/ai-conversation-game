@@ -119,6 +119,7 @@ app.post('/api/message', async (req, res) => {
 
     // Generate scene image
     let imageUrl = null;
+    let imageError = null;
     try {
       // Build character context for image consistency
       let characterContext = '';
@@ -138,10 +139,14 @@ app.post('/api/message', async (req, res) => {
       imageUrl = imageResp.data[0].url;
     } catch (imgErr) {
       console.error('Image generation error:', imgErr);
-      // Continue without image if generation fails
+      if (imgErr.code === 'content_policy_violation') {
+        imageError = 'Content filter triggered - image could not be generated';
+      } else {
+        imageError = 'Image generation failed';
+      }
     }
 
-    res.json({ text: fairyText, audio: audioBase64, image: imageUrl });
+    res.json({ text: fairyText, audio: audioBase64, image: imageUrl, imageError });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to fetch response' });
