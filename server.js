@@ -79,7 +79,14 @@ app.post('/api/message', async (req, res) => {
     // Generate scene image based on the fairy's response
     let imageUrl = null;
     try {
-      const imagePrompt = `A whimsical fantasy scene illustration: ${fairyText.substring(0, 500)}. Style: colorful, magical, storybook illustration.`;
+      // For initial greeting, use a generic prompt without text
+      let imagePrompt;
+      if (conversation.length === 0) {
+        imagePrompt = 'A whimsical fairy in a magical enchanted forest, colorful, storybook illustration style, welcoming and friendly atmosphere';
+      } else {
+        imagePrompt = `A whimsical fantasy scene illustration: ${fairyText.substring(0, 500)}. Style: colorful, magical, storybook illustration.`;
+      }
+      
       const imageResp = await openai.images.generate({
         model: 'dall-e-3',
         prompt: imagePrompt,
