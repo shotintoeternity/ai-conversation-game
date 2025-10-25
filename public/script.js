@@ -7,6 +7,7 @@ const imageStatus = document.getElementById('imageStatus');
 
 let conversation = [];
 let characters = {}; // Track all characters throughout the adventure
+let settings = {}; // Track all settings/locations throughout the adventure
 
 function appendMessage(sender, text) {
   const div = document.createElement('div');
@@ -45,22 +46,34 @@ async function sendMessage() {
     const resp = await fetch('/api/message', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: text, conversation, characters })
+      body: JSON.stringify({ message: text, conversation, characters, settings })
     });
 
-    if (!resp.ok) throw new Error('Server error');
     const data = await resp.json();
     
     // Remove loading message
     const loadingMsg = document.getElementById('loadingMessage');
     if (loadingMsg) loadingMsg.remove();
     
+    // Check for text generation errors
+    if (!resp.ok || data.textError) {
+      const errorMessage = data.textError || 'Failed to get a response.';
+      appendMessage('Error', errorMessage);
+      imageStatus.textContent = '⚠️ Response generation failed';
+      imageStatus.style.color = '#ff9999';
+      sendBtn.disabled = false;
+      return;
+    }
+    
     appendMessage('Luna', data.text);
     conversation.push({ role: 'assistant', content: data.text });
     
-    // Update character database
+    // Update character and setting databases
     if (data.characters) {
       characters = data.characters;
+    }
+    if (data.settings) {
+      settings = data.settings;
     }
 
     const audioSrc = `data:audio/mpeg;base64,${data.audio}`;
@@ -120,9 +133,12 @@ window.addEventListener('load', async () => {
       appendMessage('Luna', data.text);
       conversation.push({ role: 'assistant', content: data.text });
       
-      // Update character database
+      // Update character and setting databases
       if (data.characters) {
         characters = data.characters;
+      }
+      if (data.settings) {
+        settings = data.settings;
       }
 
       const audioSrc = `data:audio/mpeg;base64,${data.audio}`;

@@ -36,11 +36,17 @@ CHARACTER TRACKING:
 - When introducing a NEW character, weave their physical description naturally into your storytelling (hair, eyes, clothing, distinctive features)
 - Example: "A tall warrior with piercing blue eyes and a jagged scar across his cheek approaches - he introduces himself as Kael."
 - ALSO include a hidden detailed description in <character_description> tags AFTER your visible response for image consistency
-- Format: <character_description name="Character Name">DETAILED physical appearance - MUST include: exact skin tone (fair/tan/olive/brown/dark/etc), precise hair color and style, exact eye color, complete outfit description with colors and materials, body build, distinctive features, apparent age</character_description>
-- Example: "You meet an elven archer named Aria." <character_description name="Aria">Fair porcelain skin, long silver hair in a braid down to waist, bright emerald green eyes, tall slender athletic build 5'8", wearing dark forest-green leather armor with gold elven leaf embroidery, brown leather belt with silver buckle, black boots, pointed elf ears, elegant angular features, appears early twenties</character_description>
-- BE VERY SPECIFIC about skin tone, hair color, and outfit colors/materials - these are critical for visual consistency
+- Format: <character_description name="Character Name">DETAILED physical appearance - MUST include: race/nationality/species (human-Japanese, elf-Nordic, dwarf-Scottish, etc), exact skin tone (fair porcelain/tan/olive/brown/dark/etc), precise hair color and style with length, exact eye color and shape, complete outfit description with specific colors and materials, body build and height, facial features, distinctive marks/scars, apparent age, any accessories</character_description>
+- Example: "You meet an elven archer named Aria." <character_description name="Aria">High elf with Nordic features, fair porcelain skin, long silver-white hair in a braid down to waist, bright emerald green almond-shaped eyes, tall slender athletic build 5'8", wearing dark forest-green leather armor with intricate gold elven leaf embroidery on shoulders, brown leather belt with ornate silver buckle, black knee-high boots, pointed elf ears, elegant angular facial features with high cheekbones, silver crescent moon pendant necklace, appears early twenties</character_description>
+- BE EXTREMELY SPECIFIC about race/nationality, skin tone, hair color, outfit colors/materials, and facial features - these are critical for visual consistency
 - The hidden tags maintain visual consistency across images - players only see the natural story descriptions
-- Reference both the name and appearance details when characters reappear`;
+- Reference both the name and appearance details when characters reappear
+
+SETTING TRACKING:
+- When establishing a new setting/location, include hidden setting details in <setting_description> tags
+- Format: <setting_description name="Location Name">Detailed environment: time of day, weather, lighting quality, architectural style, colors, materials, atmosphere, key visual elements, cultural influences</setting_description>
+- Example: <setting_description name="Moonlit Forest">Dense ancient forest at night, full moon casting silver light through canopy, twisted oak and pine trees with moss-covered trunks, misty atmosphere with blue-gray fog, bioluminescent mushrooms glowing soft green along forest floor, Celtic-inspired stone ruins visible in background, cool color palette of blues and greens, ethereal and mysterious mood</setting_description>
+- Include setting context when the scene remains in the same location`;
 const VOICE_ID = process.env.ELEVENLABS_VOICE_ID || 'cgSgspJ2msm6clMCkdW9';
 
 // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
@@ -53,6 +59,7 @@ app.post('/api/message', async (req, res) => {
   const userMessage = req.body.message;
   const conversation = req.body.conversation || [];
   const sessionCharacters = req.body.characters || {};
+  const sessionSettings = req.body.settings || {};
 
   try {
     // Use pre-generated default assets for initial greeting (instant loading)
@@ -88,7 +95,34 @@ app.post('/api/message', async (req, res) => {
     }
 
     const groqData = await groqResp.json();
-    const fullResponse = groqData.choices[0].message.content.trim();
+    
+    // Check if response was blocked or filtered
+    if (!groqData.choices || groqData.choices.length === 0) {
+      return res.status(400).json({ 
+        error: 'Content generation failed',
+        textError: 'Luna was unable to generate a response for this interaction. Please try a different approach.'
+      });
+    }
+    
+    const choice = groqData.choices[0];
+    
+    // Check for content filtering
+    if (choice.finish_reason === 'content_filter' || choice.finish_reason === 'safety') {
+      return res.status(400).json({ 
+        error: 'Content filtered',
+        textError: 'This content was blocked by safety filters. Please try a different direction for your adventure.'
+      });
+    }
+    
+    const fullResponse = choice.message?.content?.trim();
+    
+    // Check if response is empty
+    if (!fullResponse) {
+      return res.status(400).json({ 
+        error: 'Empty response',
+        textError: 'Luna was unable to respond. Please try rephrasing your message.'
+      });
+    }
     
     // Extract NEW character descriptions from this response
     const newCharacters = {};
@@ -98,11 +132,23 @@ app.post('/api/message', async (req, res) => {
       newCharacters[match[1]] = match[2];
     }
     
-    // Merge with existing characters from session
-    const allCharacters = { ...sessionCharacters, ...newCharacters };
+    // Extract NEW setting descriptions from this response
+    const newSettings = {};
+    const settingRegex = /<setting_description name="([^"]+)">([^<]+)<\/setting_description>/g;
+    let settingMatch;
+    while ((settingMatch = settingRegex.exec(fullResponse)) !== null) {
+      newSettings[settingMatch[1]] = settingMatch[2];
+    }
     
-    // Remove character description tags from player-visible text
-    const fairyText = fullResponse.replace(/<character_description[^>]*>.*?<\/character_description>/g, '').trim();
+    // Merge with existing characters and settings from session
+    const allCharacters = { ...sessionCharacters, ...newCharacters };
+    const allSettings = { ...sessionSettings, ...newSettings };
+    
+    // Remove character and setting description tags from player-visible text
+    const fairyText = fullResponse
+      .replace(/<character_description[^>]*>.*?<\/character_description>/g, '')
+      .replace(/<setting_description[^>]*>.*?<\/setting_description>/g, '')
+      .trim();
 
     const ttsResp = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}`, {
       method: 'POST',
@@ -125,6 +171,15 @@ app.post('/api/message', async (req, res) => {
     let imageUrl = null;
     let imageError = null;
     try {
+      // Build setting context
+      let settingContext = '';
+      const settingEntries = Object.entries(allSettings);
+      if (settingEntries.length > 0) {
+        // Use the most recent setting (last one added)
+        const currentSetting = settingEntries[settingEntries.length - 1];
+        settingContext = `Setting: ${currentSetting[1]}. `;
+      }
+      
       // Only include characters that are mentioned in the current response
       let characterContext = '';
       const characterEntries = Object.entries(allCharacters);
@@ -137,11 +192,11 @@ app.post('/api/message', async (req, res) => {
         if (mentionedCharacters.length > 0) {
           // Focus on the mentioned character(s), showing only one primary character
           const primaryCharacter = mentionedCharacters[0];
-          characterContext = `Focus on single character: ${primaryCharacter[0]} - ${primaryCharacter[1]}. `;
+          characterContext = `Character focus: ${primaryCharacter[0]} - ${primaryCharacter[1]}. `;
         }
       }
       
-      const imagePrompt = `Hyperrealistic fantasy scene focusing on the single most important character based on the current interaction. ${characterContext}Scene: ${fairyText.substring(0, 350)}. Style: photorealistic rendering with fantastical elements, cinematic lighting, highly detailed, vivid colors, magical realism. Show ONLY the most important character in this scene - do not include multiple versions or other characters. IMPORTANT: No text, no words, no letters, no captions, no subtitles, no writing, no signs, no labels - pure visual imagery only.`;
+      const imagePrompt = `Hyperrealistic fantasy scene focusing on the single most important character based on the current interaction. ${settingContext}${characterContext}Scene: ${fairyText.substring(0, 300)}. Style: photorealistic rendering with fantastical elements, cinematic lighting, highly detailed, vivid colors, magical realism. Show ONLY the most important character in this scene - do not include multiple versions or other characters. IMPORTANT: No text, no words, no letters, no captions, no subtitles, no writing, no signs, no labels - pure visual imagery only.`;
       
       const imageResp = await openai.images.generate({
         model: 'dall-e-3',
@@ -160,10 +215,13 @@ app.post('/api/message', async (req, res) => {
       }
     }
 
-    res.json({ text: fairyText, audio: audioBase64, image: imageUrl, imageError, characters: allCharacters });
+    res.json({ text: fairyText, audio: audioBase64, image: imageUrl, imageError, characters: allCharacters, settings: allSettings });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Failed to fetch response' });
+    console.error('Server error:', err);
+    res.status(500).json({ 
+      error: 'Failed to fetch response',
+      textError: 'An error occurred while generating the response. Please try again.'
+    });
   }
 });
 
