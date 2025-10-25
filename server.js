@@ -67,9 +67,12 @@ app.post('/api/message', async (req, res) => {
       const fairyText = "Greetings, adventurer! I'm Luna. This is your adventure—your world, your rules—and I'll help you shape it.\n\nTell me the mood, our first step, and what you wish to attempt; I'll open the veil, set the scene, and offer clear paths while you decide what unfolds.\n\nChoose your realm: a dark cyberpunk sprawl of hackers and ghost-code, a fantasy court of sorcerer princes and elven princesses.\n\nOr you could help solve a ticking mystery on a night train, travel to sky islands in a clockwork city where hours are currency, visit an undersea cathedral lit by oracles, a haunted carnival that only starts at midnight—or anything else you can imagine.\n\nBring whatever companions you desire—even the possibility of romance—and I'll lay the first stone beneath your feet.";
       const audioBuffer = fs.readFileSync(path.join(__dirname, 'public', 'default-greeting.mp3'));
       const audioBase64 = audioBuffer.toString('base64');
-      const imageUrl = '/default-greeting.png';
       
-      return res.json({ text: fairyText, audio: audioBase64, image: imageUrl });
+      // Load and encode default image as base64 for consistent cross-platform loading
+      const imageBuffer = fs.readFileSync(path.join(__dirname, 'public', 'default-greeting.png'));
+      const imageBase64 = `data:image/png;base64,${imageBuffer.toString('base64')}`;
+      
+      return res.json({ text: fairyText, audio: audioBase64, image: imageBase64 });
     }
 
     // For all other messages, generate dynamically
