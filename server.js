@@ -97,7 +97,7 @@ app.post('/api/message', async (req, res) => {
     // Generate scene image
     let imageUrl = null;
     try {
-      const imagePrompt = `A whimsical fantasy scene illustration: ${fairyText.substring(0, 500)}. Style: colorful, magical, storybook illustration. DO NOT INCLUDE ANY TEXT IN THE IMAGE RESPONSE.`;
+      const imagePrompt = `Hyperrealistic fantasy scene: ${fairyText.substring(0, 500)}. Style: photorealistic with fantastical elements, cinematic lighting, highly detailed, vivid colors, magical realism. DO NOT INCLUDE ANY TEXT IN THE IMAGE RESPONSE.`;
       
       const imageResp = await openai.images.generate({
         model: 'dall-e-3',
