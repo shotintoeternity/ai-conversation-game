@@ -31,7 +31,13 @@ During the adventure:
 - Include unexpected plot twists, mysterious strangers, dangerous situations, and thrilling escapes
 - Ask questions to keep them engaged
 - Remember their choices and preferences
-- If they say "create the adventure" or similar, take creative control and start generating the story for them`;
+- If they say "create the adventure" or similar, take creative control and start generating the story for them
+
+CHARACTER TRACKING (INTERNAL - DO NOT SHOW TO PLAYER):
+- When introducing a NEW character, include a detailed physical description in <character_description> tags
+- Format: <character_description name="Character Name">Detailed appearance: hair color, eye color, clothing, distinctive features, build, etc.</character_description>
+- These descriptions are for story consistency and image generation - the player will NOT see them
+- Reference these descriptions when the character reappears to maintain consistency`;
 const VOICE_ID = process.env.ELEVENLABS_VOICE_ID || 'cgSgspJ2msm6clMCkdW9';
 
 // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
@@ -75,7 +81,21 @@ app.post('/api/message', async (req, res) => {
     }
 
     const groqData = await groqResp.json();
-    const fairyText = groqData.choices[0].message.content.trim();
+    const fullResponse = groqData.choices[0].message.content.trim();
+    
+    // Extract character descriptions (hidden from player)
+    const characterDescriptions = [];
+    const charRegex = /<character_description name="([^"]+)">([^<]+)<\/character_description>/g;
+    let match;
+    while ((match = charRegex.exec(fullResponse)) !== null) {
+      characterDescriptions.push({
+        name: match[1],
+        description: match[2]
+      });
+    }
+    
+    // Remove character description tags from player-visible text
+    const fairyText = fullResponse.replace(/<character_description[^>]*>.*?<\/character_description>/g, '').trim();
 
     const ttsResp = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}`, {
       method: 'POST',
@@ -97,7 +117,13 @@ app.post('/api/message', async (req, res) => {
     // Generate scene image
     let imageUrl = null;
     try {
-      const imagePrompt = `Hyperrealistic fantasy scene: ${fairyText.substring(0, 500)}. Style: photorealistic with fantastical elements, cinematic lighting, highly detailed, vivid colors, magical realism. DO NOT INCLUDE ANY TEXT IN THE IMAGE RESPONSE.`;
+      // Build character context for image consistency
+      let characterContext = '';
+      if (characterDescriptions.length > 0) {
+        characterContext = characterDescriptions.map(c => `${c.name}: ${c.description}`).join('. ') + '. ';
+      }
+      
+      const imagePrompt = `Hyperrealistic fantasy scene. ${characterContext}Scene: ${fairyText.substring(0, 400)}. Style: photorealistic with fantastical elements, cinematic lighting, highly detailed, vivid colors, magical realism. IMPORTANT: No text, no words, no letters, no captions, no subtitles, no writing, no signs, no labels - pure visual imagery only.`;
       
       const imageResp = await openai.images.generate({
         model: 'dall-e-3',
