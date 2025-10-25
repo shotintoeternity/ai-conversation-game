@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const fetch = require('node-fetch');
 const path = require('path');
+const fs = require('fs');
 const OpenAI = require('openai');
 
 const app = express();
@@ -41,36 +42,40 @@ app.post('/api/message', async (req, res) => {
   const conversation = req.body.conversation || [];
 
   try {
-    let fairyText;
-    
-    // Use optimized pre-written greeting for first message (faster loading)
+    // Use pre-generated default assets for initial greeting (instant loading)
     if (conversation.length === 0 && userMessage === '') {
-      fairyText = "Hello, brave adventurer! I'm Luna, your fairy guide. What kind of magical journey shall we create together today?";
-    } else {
-      const groqResp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          model: 'llama-3.3-70b-versatile',
-          messages: [
-            { role: 'system', content: SYSTEM_PROMPT },
-            ...conversation,
-            { role: 'user', content: userMessage }
-          ]
-        })
-      });
-
-      if (!groqResp.ok) {
-        const errText = await groqResp.text();
-        throw new Error(`Groq API error: ${errText}`);
-      }
-
-      const groqData = await groqResp.json();
-      fairyText = groqData.choices[0].message.content.trim();
+      const fairyText = "Hello, brave adventurer! I'm Luna, your fairy guide. What kind of magical journey shall we create together today?";
+      const audioBuffer = fs.readFileSync(path.join(__dirname, 'public', 'default-greeting.mp3'));
+      const audioBase64 = audioBuffer.toString('base64');
+      const imageUrl = '/default-greeting.png';
+      
+      return res.json({ text: fairyText, audio: audioBase64, image: imageUrl });
     }
+
+    // For all other messages, generate dynamically
+    const groqResp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        messages: [
+          { role: 'system', content: SYSTEM_PROMPT },
+          ...conversation,
+          { role: 'user', content: userMessage }
+        ]
+      })
+    });
+
+    if (!groqResp.ok) {
+      const errText = await groqResp.text();
+      throw new Error(`Groq API error: ${errText}`);
+    }
+
+    const groqData = await groqResp.json();
+    const fairyText = groqData.choices[0].message.content.trim();
 
     const ttsResp = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}`, {
       method: 'POST',
@@ -89,16 +94,10 @@ app.post('/api/message', async (req, res) => {
     const arrayBuffer = await ttsResp.arrayBuffer();
     const audioBase64 = Buffer.from(arrayBuffer).toString('base64');
 
-    // Generate scene image based on the fairy's response
+    // Generate scene image
     let imageUrl = null;
     try {
-      // For initial greeting, use a generic prompt without text
-      let imagePrompt;
-      if (conversation.length === 0) {
-        imagePrompt = 'A whimsical fairy in a magical enchanted forest, colorful, storybook illustration style, welcoming and friendly atmosphere. DO NOT INCLUDE ANY TEXT IN THE IMAGE RESPONSE.';
-      } else {
-        imagePrompt = `A whimsical fantasy scene illustration: ${fairyText.substring(0, 500)}. Style: colorful, magical, storybook illustration. DO NOT INCLUDE ANY TEXT IN THE IMAGE RESPONSE.`;
-      }
+      const imagePrompt = `A whimsical fantasy scene illustration: ${fairyText.substring(0, 500)}. Style: colorful, magical, storybook illustration. DO NOT INCLUDE ANY TEXT IN THE IMAGE RESPONSE.`;
       
       const imageResp = await openai.images.generate({
         model: 'dall-e-3',

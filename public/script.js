@@ -83,35 +83,23 @@ userInput.addEventListener('keydown', (e) => {
   }
 });
 
-// Auto-start the game with fairy's introduction
+// Auto-start the game with fairy's introduction (instant load with cached assets)
 window.addEventListener('load', async () => {
   if (conversation.length === 0) {
-    // Show loading message
-    const loadingDiv = document.createElement('div');
-    loadingDiv.className = 'loadingMessage';
-    loadingDiv.textContent = '✨ Please wait while AI is working its magic... ✨';
-    loadingDiv.id = 'loadingMessage';
-    messagesDiv.appendChild(loadingDiv);
-    
     imageStatus.textContent = 'Welcome! Starting your adventure...';
-    sendBtn.disabled = true;
     
     try {
+      // Send empty message to get cached greeting (no API calls, instant response)
       const resp = await fetch('/api/message', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: 'Hello!', conversation: [] })
+        body: JSON.stringify({ message: '', conversation: [] })
       });
 
       if (!resp.ok) throw new Error('Server error');
       const data = await resp.json();
       
-      // Remove loading message
-      const loadingMsg = document.getElementById('loadingMessage');
-      if (loadingMsg) loadingMsg.remove();
-      
       appendMessage('Fairy', data.text);
-      conversation.push({ role: 'user', content: 'Hello!' });
       conversation.push({ role: 'assistant', content: data.text });
 
       const audioSrc = `data:audio/mpeg;base64,${data.audio}`;
@@ -128,8 +116,6 @@ window.addEventListener('load', async () => {
     } catch (err) {
       imageStatus.textContent = 'Welcome! Type a message to begin.';
       console.error(err);
-    } finally {
-      sendBtn.disabled = false;
     }
   }
 });
