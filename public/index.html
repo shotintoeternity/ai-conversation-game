@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Create Your Own Adventure</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet">
   <style>
     * {
       margin: 0;
@@ -25,15 +25,16 @@
       background-clip: text;
       font-size: 3.2em;
       margin-bottom: 30px;
-      font-weight: 900;
-      letter-spacing: 6px;
-      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 3px;
       filter: drop-shadow(0 0 25px rgba(255, 215, 0, 0.6)) 
               drop-shadow(0 0 40px rgba(192, 132, 252, 0.4))
               drop-shadow(0 0 60px rgba(96, 165, 250, 0.3));
       font-family: 'Cinzel', 'Palatino Linotype', 'Book Antiqua', 'Georgia', serif;
-      animation: magicGlow 12s ease-in-out infinite;
+      animation: magicGlow 20s ease-in-out infinite;
       position: relative;
+      text-transform: none;
+      font-variant: normal;
     }
     @keyframes magicGlow {
       0%, 100% {
@@ -156,6 +157,7 @@
       border-radius: 12px;
       animation: fadeIn 0.3s;
       line-height: 1.5;
+      white-space: pre-line;
     }
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
