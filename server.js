@@ -141,7 +141,7 @@ app.post('/api/message', async (req, res) => {
         }
       }
       
-      const imagePrompt = `Hyperrealistic fantasy scene with a single focused character. ${characterContext}Scene: ${fairyText.substring(0, 350)}. Style: photorealistic rendering with fantastical elements, cinematic lighting, highly detailed, vivid colors, magical realism. Show only ONE character as the focal point. IMPORTANT: No text, no words, no letters, no captions, no subtitles, no writing, no signs, no labels - pure visual imagery only.`;
+      const imagePrompt = `Hyperrealistic fantasy scene focusing on the single most important character based on the current interaction. ${characterContext}Scene: ${fairyText.substring(0, 350)}. Style: photorealistic rendering with fantastical elements, cinematic lighting, highly detailed, vivid colors, magical realism. Show ONLY the most important character in this scene - do not include multiple versions or other characters. IMPORTANT: No text, no words, no letters, no captions, no subtitles, no writing, no signs, no labels - pure visual imagery only.`;
       
       const imageResp = await openai.images.generate({
         model: 'dall-e-3',
