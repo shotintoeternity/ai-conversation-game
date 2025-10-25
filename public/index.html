@@ -18,7 +18,7 @@
     }
     h1 {
       text-align: center;
-      background: linear-gradient(45deg, #ffd700, #ffed4e, #ff6b9d, #c084fc, #60a5fa, #ffd700);
+      background: linear-gradient(45deg, #ff3333, #228B22, #4169E1, #9370DB, #ff3333);
       background-size: 300% 300%;
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -27,26 +27,17 @@
       margin-bottom: 30px;
       font-weight: 700;
       letter-spacing: 3px;
-      filter: drop-shadow(0 0 25px rgba(255, 215, 0, 0.6)) 
-              drop-shadow(0 0 40px rgba(192, 132, 252, 0.4))
-              drop-shadow(0 0 60px rgba(96, 165, 250, 0.3));
       font-family: 'Cinzel', 'Palatino Linotype', 'Book Antiqua', 'Georgia', serif;
-      animation: magicGlow 20s ease-in-out infinite;
+      animation: colorShift 8s ease-in-out infinite;
       position: relative;
       text-transform: none;
       font-variant: normal;
     }
-    @keyframes magicGlow {
+    @keyframes colorShift {
       0%, 100% {
-        filter: drop-shadow(0 0 25px rgba(255, 215, 0, 0.6)) 
-                drop-shadow(0 0 40px rgba(192, 132, 252, 0.4))
-                drop-shadow(0 0 60px rgba(96, 165, 250, 0.3));
         background-position: 0% 50%;
       }
       50% {
-        filter: drop-shadow(0 0 35px rgba(255, 215, 0, 0.8)) 
-                drop-shadow(0 0 50px rgba(192, 132, 252, 0.6))
-                drop-shadow(0 0 70px rgba(96, 165, 250, 0.5));
         background-position: 100% 50%;
       }
     }
