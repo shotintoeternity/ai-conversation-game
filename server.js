@@ -125,14 +125,23 @@ app.post('/api/message', async (req, res) => {
     let imageUrl = null;
     let imageError = null;
     try {
-      // Build character context from ALL known characters for consistency
+      // Only include characters that are mentioned in the current response
       let characterContext = '';
       const characterEntries = Object.entries(allCharacters);
       if (characterEntries.length > 0) {
-        characterContext = 'Characters present: ' + characterEntries.map(([name, desc]) => `${name} (${desc})`).join('; ') + '. ';
+        // Find which characters are actually mentioned in this response
+        const mentionedCharacters = characterEntries.filter(([name, desc]) => {
+          return fairyText.toLowerCase().includes(name.toLowerCase());
+        });
+        
+        if (mentionedCharacters.length > 0) {
+          // Focus on the mentioned character(s), showing only one primary character
+          const primaryCharacter = mentionedCharacters[0];
+          characterContext = `Focus on single character: ${primaryCharacter[0]} - ${primaryCharacter[1]}. `;
+        }
       }
       
-      const imagePrompt = `Hyperrealistic fantasy scene. ${characterContext}Scene: ${fairyText.substring(0, 350)}. Style: photorealistic rendering with fantastical elements, cinematic lighting, highly detailed, vivid colors, magical realism. IMPORTANT: No text, no words, no letters, no captions, no subtitles, no writing, no signs, no labels - pure visual imagery only.`;
+      const imagePrompt = `Hyperrealistic fantasy scene with a single focused character. ${characterContext}Scene: ${fairyText.substring(0, 350)}. Style: photorealistic rendering with fantastical elements, cinematic lighting, highly detailed, vivid colors, magical realism. Show only ONE character as the focal point. IMPORTANT: No text, no words, no letters, no captions, no subtitles, no writing, no signs, no labels - pure visual imagery only.`;
       
       const imageResp = await openai.images.generate({
         model: 'dall-e-3',
