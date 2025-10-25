@@ -66,3 +66,42 @@ userInput.addEventListener('keydown', (e) => {
     sendMessage();
   }
 });
+
+// Auto-start the game with fairy's introduction
+window.addEventListener('load', async () => {
+  if (conversation.length === 0) {
+    imageStatus.textContent = 'Welcome! Starting your adventure...';
+    sendBtn.disabled = true;
+    
+    try {
+      const resp = await fetch('/api/message', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: 'Hello!', conversation: [] })
+      });
+
+      if (!resp.ok) throw new Error('Server error');
+      const data = await resp.json();
+      appendMessage('Fairy', data.text);
+      conversation.push({ role: 'user', content: 'Hello!' });
+      conversation.push({ role: 'assistant', content: data.text });
+
+      const audioSrc = `data:audio/mpeg;base64,${data.audio}`;
+      fairyAudio.src = audioSrc;
+      await fairyAudio.play();
+
+      if (data.image) {
+        sceneImage.src = data.image;
+        sceneImage.style.display = 'block';
+        imageStatus.style.display = 'none';
+      } else {
+        imageStatus.textContent = 'Ready to begin your adventure!';
+      }
+    } catch (err) {
+      imageStatus.textContent = 'Welcome! Type a message to begin.';
+      console.error(err);
+    } finally {
+      sendBtn.disabled = false;
+    }
+  }
+});
