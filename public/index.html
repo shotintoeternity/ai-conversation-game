@@ -2,6 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Create Your Own Adventure</title>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet">
   <style>
@@ -212,14 +213,101 @@
       box-shadow: 0 15px 40px rgba(102, 126, 234, 0.7);
     }
     @media (max-width: 768px) {
-      #container {
-        flex-direction: column;
+      body {
+        padding: 10px;
+        padding-bottom: 0;
       }
       h1 {
-        font-size: 2em;
+        font-size: 1.8em;
+        margin-bottom: 15px;
+        letter-spacing: 1px;
+      }
+      #container {
+        flex-direction: column;
+        gap: 15px;
+        max-width: 100%;
       }
       #leftPanel, #rightPanel {
         min-width: auto;
+        height: auto;
+        max-height: none;
+        padding: 15px;
+      }
+      #leftPanel {
+        order: 2;
+        height: 400px;
+        max-height: 400px;
+      }
+      #rightPanel {
+        order: 1;
+        height: auto;
+        min-height: 300px;
+      }
+      #messages {
+        font-size: 0.95em;
+      }
+      #userInput {
+        font-size: 16px;
+        padding: 14px 18px;
+      }
+      #sendBtn {
+        font-size: 16px;
+        padding: 14px 24px;
+      }
+      #sceneImage {
+        max-width: 100%;
+        max-height: 60vh;
+        object-fit: contain;
+      }
+      #startBtn {
+        margin-top: 20px;
+        padding: 16px 32px;
+        font-size: 1.1em;
+        width: 100%;
+        max-width: 300px;
+      }
+      .rightPanel h3 {
+        font-size: 1.1em;
+      }
+      #imageStatus {
+        font-size: 0.9em;
+        margin-top: 10px;
+      }
+      #fairyAudio {
+        margin-top: 8px;
+      }
+    }
+    @media (max-width: 480px) {
+      body {
+        padding: 5px;
+      }
+      h1 {
+        font-size: 1.5em;
+        margin-bottom: 10px;
+        letter-spacing: 0.5px;
+      }
+      #container {
+        gap: 10px;
+      }
+      #leftPanel {
+        height: 350px;
+        max-height: 350px;
+        padding: 12px;
+      }
+      #rightPanel {
+        padding: 12px;
+        min-height: 250px;
+      }
+      #sceneImage {
+        max-height: 50vh;
+      }
+      .message {
+        padding: 10px 14px;
+        font-size: 0.9em;
+      }
+      #startBtn {
+        font-size: 1em;
+        padding: 14px 28px;
       }
     }
   </style>
