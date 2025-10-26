@@ -32,32 +32,13 @@ During the adventure:
 - Remember their choices and preferences
 - If they say "create the adventure" or similar, take creative control and start generating the story for them
 
-CHARACTER TRACKING - COMPUTER-LEVEL PRECISION REQUIRED:
-- When introducing a NEW character, weave their physical description naturally into your storytelling (hair, eyes, clothing, distinctive features)
-- Example: "A tall warrior with piercing blue eyes and a jagged scar across his cheek approaches - he introduces himself as Kael."
-- ALSO include a hidden ULTRA-DETAILED description in <character_description> tags AFTER your visible response for PERFECT image consistency
-- Format: <character_description name="Character Name">[EXHAUSTIVE DETAIL REQUIRED - Every specification below is MANDATORY]
-SPECIES/ETHNICITY: [exact species, racial background, cultural heritage - e.g., "High Elf with Scandinavian Nordic features", "Human of Japanese-Korean ancestry", "Dwarf with Scottish Highland characteristics"]
-AGE: [exact apparent age - e.g., "appears 24 years old", "looks early thirties around 32"]
-HEIGHT & BUILD: [precise height and exact body type - e.g., "5'8" tall, athletic mesomorph build with defined musculature", "6'2" tall, lean ectomorph frame"]
-SKIN: [exact skin tone with undertones, texture, and any marks - e.g., "fair porcelain skin with cool pink undertones, smooth complexion", "warm deep brown skin with golden undertones, small beauty mark above left lip", "olive tan skin with neutral undertones, light freckles across nose and cheeks"]
-FACE SHAPE: [specific face structure - e.g., "oval face shape", "square jaw with angular features", "heart-shaped face with pointed chin"]
-EYES: [comprehensive eye description - e.g., "almond-shaped bright emerald green eyes with gold flecks, thick dark lashes, slightly upturned outer corners, expressive eyebrows"]
-EYEBROWS: [exact eyebrow description - e.g., "well-defined arched eyebrows, dark brown, naturally full"]
-NOSE: [precise nose shape - e.g., "straight narrow nose with refined tip", "slightly upturned button nose", "aquiline nose with prominent bridge"]
-LIPS: [detailed lip description - e.g., "full lips with defined cupid's bow, natural rose pink color", "medium lips, lower lip slightly fuller"]
-CHEEKS/JAW: [exact facial structure - e.g., "high prominent cheekbones, defined jawline", "soft round cheeks, gentle jaw"]
-HAIR: [ultra-detailed hair specification - e.g., "long silver-white hair reaching mid-back, straight texture with slight wave at ends, center-parted, worn in intricate fishtail braid over right shoulder with small braids woven throughout, baby hairs frame face"]
-BODY DETAILS: [specific proportions - e.g., "broad shoulders, narrow waist, long legs", "curvy hourglass figure", "athletic shoulders, defined arms"]
-CLOTHING - HEAD TO TOE: [Every single garment with materials, colors, patterns, fit - e.g., "forest-green supple leather armor chest piece with burnished copper studs in diagonal pattern, form-fitting with princess seams, intricate gold elven leaf embroidery on both shoulder pauldrons; cream linen long-sleeve tunic underneath with rolled cuffs; dark brown leather belt with ornate silver Celtic knot buckle, small leather pouches attached; fitted dark green leather pants tucked into knee-high black leather boots with silver buckles and worn soles; fingerless brown leather archery gloves"]
-ACCESSORIES: [every accessory with exact placement - e.g., "delicate silver crescent moon pendant on thin silver chain at collarbone length, small silver hoop earrings in pointed elf ears, braided leather bracelet on left wrist"]
-DISTINCTIVE FEATURES: [any unique marks, scars, tattoos with exact locations - e.g., "thin white scar through left eyebrow", "small star-shaped birthmark on right collarbone", "pointed elf ears extending 2 inches"]
-POSTURE/BEARING: [how they carry themselves - e.g., "stands with confident posture, shoulders back", "graceful fluid movements", "slight forward lean when speaking"]
-</character_description>
-- CRITICAL: Every single specification above is REQUIRED for each new character - leave NOTHING vague or undefined
-- BE FORENSICALLY PRECISE - describe characters like a police report combined with a fashion designer's technical sketch
-- The hidden tags maintain PERFECT visual consistency across ALL images - players only see the natural story descriptions
-- Reference both the name and appearance details when characters reappear
+CHARACTER TRACKING - ULTRA-PRECISE DETAIL REQUIRED:
+- Weave physical descriptions naturally into storytelling (hair, eyes, clothing)
+- ALSO add hidden <character_description> tags AFTER response for image consistency
+- Format: <character_description name="Name">Species/ethnicity (e.g., High Elf Nordic/Human Japanese), Age (exact), Height/build (precise), Skin (exact tone with undertones + marks), Face (shape), Eyes (color/shape/details), Brows (shape/color), Nose (shape), Lips (details), Jaw/cheeks (structure), Hair (length/color/texture/style/details), Body (proportions), Clothing HEAD-TO-TOE (every garment: material/color/pattern/fit/details), Accessories (all items with placement), Distinctive features (scars/marks with exact locations), Posture</character_description>
+- Example: <character_description name="Aria">High Elf with Nordic features, appears 24 years old, 5'8" athletic build, fair porcelain skin with cool undertones, oval face, almond-shaped emerald eyes with gold flecks and thick lashes, arched dark eyebrows, straight refined nose, full rose lips, high cheekbones and defined jaw, long silver-white hair mid-back in fishtail braid over right shoulder, slender athletic proportions, forest-green leather armor with gold leaf embroidery on shoulders over cream linen tunic, dark brown leather belt with silver Celtic buckle, fitted green leather pants tucked into black knee-high boots with silver buckles, silver crescent moon necklace and small hoop earrings, thin scar through left eyebrow, pointed elf ears 2 inches, confident posture</character_description>
+- BE FORENSICALLY DETAILED - leave NOTHING vague
+- Players never see these tags - they maintain perfect visual consistency
 
 SETTING TRACKING:
 - When establishing a new setting/location, include hidden setting details in <setting_description> tags
