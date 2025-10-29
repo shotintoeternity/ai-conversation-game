@@ -74,21 +74,39 @@ app.post('/api/message', async (req, res) => {
     }
 
     // For all other messages, generate dynamically
-    const groqResp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
-        messages: [
-          { role: 'system', content: SYSTEM_PROMPT },
-          ...conversation,
-          { role: 'user', content: userMessage }
-        ]
-      })
-    });
+    console.log('Sending request to Groq API...');
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 25000); // 25 second timeout
+    
+    try {
+      var groqResp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: 'llama-3.3-70b-versatile',
+          messages: [
+            { role: 'system', content: SYSTEM_PROMPT },
+            ...conversation,
+            { role: 'user', content: userMessage }
+          ]
+        }),
+        signal: controller.signal
+      });
+    } catch (fetchErr) {
+      clearTimeout(timeout);
+      if (fetchErr.name === 'AbortError') {
+        return res.status(504).json({ 
+          error: 'Request timeout',
+          textError: 'The AI is taking too long to respond. Please try again with a simpler message.'
+        });
+      }
+      throw fetchErr;
+    }
+    clearTimeout(timeout);
+    console.log('Groq API response received');
 
     if (!groqResp.ok) {
       const errText = await groqResp.text();
@@ -151,6 +169,9 @@ app.post('/api/message', async (req, res) => {
       .replace(/<setting_description[^>]*>.*?<\/setting_description>/g, '')
       .trim();
 
+    console.log('Fairy text extracted, length:', fairyText.length);
+    console.log('Calling ElevenLabs TTS...');
+    
     const ttsResp = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}`, {
       method: 'POST',
       headers: {
@@ -159,16 +180,21 @@ app.post('/api/message', async (req, res) => {
       },
       body: JSON.stringify({ text: fairyText, voice_settings: { stability: 0.4, similarity_boost: 0.8 } })
     });
+    
+    console.log('ElevenLabs response received, status:', ttsResp.status);
 
     if (!ttsResp.ok) {
       const errText = await ttsResp.text();
       throw new Error(`ElevenLabs API error: ${errText}`);
     }
 
+    console.log('Converting audio to base64...');
     const arrayBuffer = await ttsResp.arrayBuffer();
     const audioBase64 = Buffer.from(arrayBuffer).toString('base64');
+    console.log('Audio base64 length:', audioBase64.length);
 
     // Generate scene image
+    console.log('Starting image generation...');
     let imageUrl = null;
     let imageError = null;
     try {
@@ -199,6 +225,7 @@ app.post('/api/message', async (req, res) => {
       
       const imagePrompt = `Hyperrealistic fantasy scene focusing on the single most important character based on the current interaction. ${settingContext}${characterContext}Scene: ${fairyText.substring(0, 300)}. Style: photorealistic rendering with fantastical elements, cinematic lighting, highly detailed, vivid colors, magical realism. Show ONLY the most important character in this scene - do not include multiple versions or other characters. IMPORTANT: No text, no words, no letters, no captions, no subtitles, no writing, no signs, no labels - pure visual imagery only.`;
       
+      console.log('Calling OpenAI DALL-E...');
       const imageResp = await openai.images.generate({
         model: 'dall-e-3',
         prompt: imagePrompt,
@@ -206,6 +233,7 @@ app.post('/api/message', async (req, res) => {
         size: '1024x1024',
         quality: 'standard'
       });
+      console.log('Image generated successfully');
       imageUrl = imageResp.data[0].url;
     } catch (imgErr) {
       console.error('Image generation error:', imgErr);
@@ -216,7 +244,9 @@ app.post('/api/message', async (req, res) => {
       }
     }
 
+    console.log('Sending response to client...');
     res.json({ text: fairyText, audio: audioBase64, image: imageUrl, imageError, characters: allCharacters, settings: allSettings });
+    console.log('Response sent successfully');
   } catch (err) {
     console.error('Server error:', err);
     res.status(500).json({ 
