@@ -8,6 +8,16 @@ const OpenAI = require('openai');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Validate required API keys on startup
+const requiredKeys = ['GROQ_API_KEY', 'ELEVENLABS_API_KEY', 'MODELSLAB_API_KEY'];
+const missingKeys = requiredKeys.filter(key => !process.env[key]);
+if (missingKeys.length > 0) {
+  console.error(`❌ STARTUP FAILED: Missing required environment variables: ${missingKeys.join(', ')}`);
+  console.error('Please configure these keys in Replit Secrets.');
+  process.exit(1);
+}
+console.log('✅ All required API keys are configured');
+
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -275,6 +285,7 @@ app.post('/api/message', async (req, res) => {
           scheduler: 'DPMSolverMultistepScheduler',
           guidance_scale: '7.5',
           enhance_prompt: false,
+          safety_checker: false,
           key: process.env.MODELSLAB_API_KEY
         })
       });

@@ -29,19 +29,25 @@ A text-based fantasy adventure game powered by AI. Features a whimsical fairy du
 
 ## Recent Changes (October 29, 2025)
 - **Switched to ModelsLab API** - Replaced OpenAI DALL-E 3 with ModelsLab for NSFW-focused hyperrealistic image generation
+- **Disabled safety controls** - Set `safety_checker: false` in ModelsLab API (compliance team will configure safety controls)
 - **Implemented async polling system** - Handles ModelsLab's background processing with automatic status polling (2s intervals, 60s timeout)
+- **Secured API credentials** - ModelsLab API key now stored in Replit Secrets
 - **Current ModelsLab configuration**:
   - Model: `boziorealvisxlv4` with `nsfw-sdxl` LoRA
-  - Resolution: 768x768
+  - Resolution: 768x768 (capped in UI)
   - Scheduler: DPMSolverMultistepScheduler
   - 31 inference steps for quality
+  - safety_checker: false (per compliance team requirements)
   - Dynamic prompt building from forensic character descriptions
   - Professional photography quality keywords
   - Comprehensive negative prompts for quality control
 - **UI improvements**:
+  - Removed "Create Your Own Adventure" title/logo for cleaner interface
+  - Layout reversed: image panel on left (768x768 max), story panel on right
   - Invisible scrollbar with gradient fade indicators (top/bottom)
   - Increased text size (18px desktop, 17px tablet, 16px mobile)
   - Expanded message area (80vh height, up to 900px)
+  - Mobile-responsive: image first, then text below
   - Clean, modern reading experience
 - Commented out OpenAI DALL-E code in server.js for easy reference
 
