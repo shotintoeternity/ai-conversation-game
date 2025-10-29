@@ -30,16 +30,21 @@ A text-based fantasy adventure game powered by AI. Features a whimsical fairy du
 
 ## Recent Changes (October 29, 2025)
 - **Switched to ModelsLab API** - Replaced OpenAI DALL-E 3 with ModelsLab for NSFW-focused hyperrealistic image generation
-- **Implemented ModelsLab best practices**:
-  - Using `newrealityxl-global-nsfw` model for unrestricted content
+- **Implemented async polling system** - Handles ModelsLab's background processing with automatic status polling (2s intervals, 60s timeout)
+- **Current ModelsLab configuration**:
+  - Model: `boziorealvisxlv4` with `nsfw-sdxl` LoRA
+  - Resolution: 768x768
+  - Scheduler: DPMSolverMultistepScheduler
+  - 31 inference steps for quality
   - Dynamic prompt building from forensic character descriptions
-  - Professional photography quality keywords (8K RAW, Canon EOS R3, f/1.4, etc.)
-  - Safety checker disabled for mature content
-  - Enhanced negative prompts with age safeguards
-  - UniPCMultistepScheduler for optimal quality
-  - Prompt enhancement enabled
+  - Professional photography quality keywords
+  - Comprehensive negative prompts for quality control
+- **UI improvements**:
+  - Invisible scrollbar with gradient fade indicators (top/bottom)
+  - Increased text size (18px desktop, 17px tablet, 16px mobile)
+  - Expanded message area (80vh height, up to 900px)
+  - Clean, modern reading experience
 - Commented out OpenAI DALL-E code in server.js for easy reference
-- Added enhanced logging for audio and image generation steps
 
 ## Previous Changes
 - Initial setup in Replit environment

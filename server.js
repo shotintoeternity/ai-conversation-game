@@ -266,18 +266,16 @@ app.post('/api/message', async (req, res) => {
         },
         body: JSON.stringify({
           prompt: modelsLabPrompt,
-          model_id: 'newrealityxl-global-nsfw',
-          width: '1024',
-          height: '1024',
-          negative_prompt: '(worst quality:2), (low quality:2), (normal quality:2), (jpeg artifacts), (blurry), (duplicate), (morbid), (mutilated), (out of frame), (extra limbs), (bad anatomy), (disfigured), (deformed), (cross-eye), (glitch), (oversaturated), (overexposed), (underexposed), (bad proportions), (bad hands), (bad feet), (cloned face), (long neck), (missing arms), (missing legs), (extra fingers), (fused fingers), (too many fingers), (poorly drawn hands), (poorly drawn face), (mutation), (ugly), (bad face), (distorted face), text, words, letters, captions, subtitles, writing, signs, labels, watermark, (child:1.5), ((((underage)))), ((((child)))), (((kid))), (((preteen))), (teen:1.5)',
-          num_inference_steps: '30',
-          scheduler: 'UniPCMultistepScheduler',
-          guidance_scale: 7.5,
-          safety_checker: 'no',
-          enhance_prompt: 'yes',
-          seed: null,
-          samples: '1',
-          key: 'MpMCXltrvh44W1hIiaoM0qcrvTjfiP528f9Mgk3p5NHhVomYl1jVyDampU7v'
+          model_id: 'boziorealvisxlv4',
+          lora_model: 'nsfw-sdxl',
+          width: 768,
+          height: 768,
+          negative_prompt: '(worst quality:2), (low quality:2), (normal quality:2), (jpeg artifacts), (blurry), (duplicate), (morbid), (mutilated), (out of frame), (extra limbs), (bad anatomy), (disfigured), (deformed), (cross-eye), (glitch), (oversaturated), (overexposed), (underexposed), (bad proportions), (bad hands), (bad feet), (cloned face), (long neck), (missing arms), (missing legs), (extra fingers), (fused fingers), (poorly drawn hands), (poorly drawn face), (mutation), (deformed eyes), watermark, text, logo, signature, grainy, tiling, censored, nsfw, ugly, blurry eyes, noisy image, bad lighting, unnatural skin, asymmetry',
+          num_inference_steps: '31',
+          scheduler: 'DPMSolverMultistepScheduler',
+          guidance_scale: '7.5',
+          enhance_prompt: false,
+          key: '3VzkQmGmVsLH3QijdWKdM9A0JTE0qHgKs9ijByh4ZQw1Uec3JfyWUj9iO9rL'
         })
       });
 
@@ -312,7 +310,7 @@ app.post('/api/message', async (req, res) => {
           const pollResp = await fetch(fetchUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ key: 'MpMCXltrvh44W1hIiaoM0qcrvTjfiP528f9Mgk3p5NHhVomYl1jVyDampU7v' })
+            body: JSON.stringify({ key: '3VzkQmGmVsLH3QijdWKdM9A0JTE0qHgKs9ijByh4ZQw1Uec3JfyWUj9iO9rL' })
           });
           
           if (!pollResp.ok) {
