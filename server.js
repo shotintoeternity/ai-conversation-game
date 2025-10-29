@@ -146,29 +146,39 @@ app.post('/api/message', async (req, res) => {
     // 
     // const fullResponse = choice.message?.content?.trim();
 
-    // NEW: ModelsLab Uncensored Chat API
+    // NEW: ModelsLab Uncensored Chat API (regular v6 endpoint)
     console.log('Sending request to ModelsLab Uncensored Chat API...');
+    
+    // Build conversation prompt from history
+    let conversationPrompt = `${SYSTEM_PROMPT}\n\n`;
+    for (const msg of conversation) {
+      if (msg.role === 'user') {
+        conversationPrompt += `User: ${msg.content}\n\n`;
+      } else if (msg.role === 'assistant') {
+        conversationPrompt += `Assistant: ${msg.content}\n\n`;
+      }
+    }
+    conversationPrompt += `User: ${userMessage}\n\nAssistant:`;
+    
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 30000); // 30 second timeout
     
     try {
-      var modelsLabChatResp = await fetch('https://modelslab.com/api/v1/enterprise/uncensored_chat/start', {
+      var modelsLabChatResp = await fetch('https://modelslab.com/api/v6/completions', {
         method: 'POST',
         headers: {
+          'Authorization': `Bearer ${process.env.MODELSLAB_API_KEY}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          key: process.env.MODELSLAB_API_KEY,
-          model: 'ModelsLab/Llama-3.1-8b-Uncensored-Dare',
-          messages: [
-            { role: 'system', content: SYSTEM_PROMPT },
-            ...conversation,
-            { role: 'user', content: userMessage }
-          ],
+          model: 'aifeifei798/DarkIdol-Llama-3.1-8B-Instruct-1.2-Uncensored',
+          prompt: conversationPrompt,
           max_tokens: 500,
           temperature: 0.9,
           top_p: 0.95,
-          top_k: 50
+          presence_penalty: 0,
+          frequency_penalty: 0,
+          stream: false
         }),
         signal: controller.signal
       });
@@ -188,21 +198,22 @@ app.post('/api/message', async (req, res) => {
     if (!modelsLabChatResp.ok) {
       const errText = await modelsLabChatResp.text();
       console.error('ModelsLab Chat API error:', errText);
-      throw new Error(`ModelsLab Chat API error: ${errText}`);
+      throw new Error(`ModelsLab Chat API error (${modelsLabChatResp.status}): ${errText}`);
     }
 
     const modelsLabChatData = await modelsLabChatResp.json();
-    console.log('ModelsLab Chat response:', JSON.stringify(modelsLabChatData).substring(0, 200));
+    console.log('ModelsLab Chat response:', JSON.stringify(modelsLabChatData).substring(0, 300));
     
-    // Check if response was successful
-    if (modelsLabChatData.status !== 'success' || !modelsLabChatData.output) {
+    // Check if response has choices
+    if (!modelsLabChatData.choices || modelsLabChatData.choices.length === 0) {
+      console.error('No choices in response:', modelsLabChatData);
       return res.status(400).json({ 
         error: 'Content generation failed',
         textError: 'Luna was unable to generate a response for this interaction. Please try a different approach.'
       });
     }
     
-    const fullResponse = modelsLabChatData.output.trim();
+    const fullResponse = modelsLabChatData.choices[0].text.trim();
     
     // Check if response is empty
     if (!fullResponse) {

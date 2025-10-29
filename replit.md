@@ -14,7 +14,7 @@ A text-based fantasy adventure game powered by AI. Features a whimsical fairy du
 
 ## Technology Stack
 - Node.js with Express.js
-- ModelsLab Uncensored Chat API (Llama 3.1 8B Uncensored) for AI conversations
+- ModelsLab Uncensored Chat API (DarkIdol Llama 3.1 8B NSFW) for AI conversations
 - ElevenLabs API for text-to-speech (Voice ID: cgSgspJ2msm6clMCkdW9)
 - ModelsLab API for hyperrealistic fantasy image generation
 - Vanilla JavaScript frontend
@@ -34,11 +34,12 @@ A text-based fantasy adventure game powered by AI. Features a whimsical fairy du
 - **Implemented async polling system** - Handles ModelsLab's background image processing with automatic status polling (2s intervals, 60s timeout)
 - **Secured API credentials** - ModelsLab API key now stored in Replit Secrets (used for both chat and images)
 - **Current ModelsLab Chat configuration**:
-  - Model: `ModelsLab/Llama-3.1-8b-Uncensored-Dare`
-  - Endpoint: `https://modelslab.com/api/v1/enterprise/uncensored_chat/start`
+  - Model: `aifeifei798/DarkIdol-Llama-3.1-8B-Instruct-1.2-Uncensored` (99.81% uncensored pass rate)
+  - Endpoint: `https://modelslab.com/api/v6/completions` (regular endpoint with Bearer auth)
   - max_tokens: 500
-  - temperature: 0.9, top_p: 0.95, top_k: 50
+  - temperature: 0.9, top_p: 0.95
   - No content filtering or safety checks
+  - NSFW-optimized roleplay model
 - **Current ModelsLab Image configuration**:
   - Model: `boziorealvisxlv4` with `nsfw-sdxl` LoRA
   - Resolution: 768x768 (capped in UI)
@@ -76,7 +77,7 @@ A text-based fantasy adventure game powered by AI. Features a whimsical fairy du
 ## How It Works
 1. User types a message in the chat interface
 2. Frontend sends message + conversation history to `/api/message`
-3. Backend calls ModelsLab Uncensored Chat API (Llama 3.1 8B Uncensored) to generate fairy's response (3-4 sentences max)
+3. Backend calls ModelsLab Uncensored Chat API (DarkIdol NSFW model) to generate fairy's response (3-4 sentences max)
 4. Backend extracts character and setting tracking data from XML tags
 5. Backend converts text response to audio via ElevenLabs
 6. Backend generates hyperrealistic fantasy scene illustration via ModelsLab Image API
