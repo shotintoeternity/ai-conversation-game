@@ -72,30 +72,55 @@
       height: 80vh;
       max-height: 900px;
     }
-    #messages { 
+    #messagesWrapper {
       flex: 1;
+      position: relative;
+      margin-bottom: 15px;
+      border-radius: 12px;
+      overflow: hidden;
+      min-height: 500px;
+    }
+    #messages { 
+      height: 100%;
       overflow-y: auto; 
       overflow-x: hidden;
       padding: 20px;
-      margin-bottom: 15px;
       background: #1e1e1e;
       border-radius: 12px;
       border: 2px solid #404040;
-      min-height: 500px;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
     }
     #messages::-webkit-scrollbar {
-      width: 8px;
+      width: 0px;
+      background: transparent;
     }
-    #messages::-webkit-scrollbar-track {
-      background: #2d2d2d;
-      border-radius: 10px;
+    #messages {
+      scrollbar-width: none;
+      -ms-overflow-style: none;
     }
-    #messages::-webkit-scrollbar-thumb {
-      background: #555;
-      border-radius: 10px;
+    .fadeTop, .fadeBottom {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 60px;
+      pointer-events: none;
+      z-index: 10;
+      opacity: 0;
+      transition: opacity 0.3s;
     }
-    #messages::-webkit-scrollbar-thumb:hover {
-      background: #777;
+    .fadeTop {
+      top: 0;
+      background: linear-gradient(to bottom, rgba(30,30,30,0.95) 0%, rgba(30,30,30,0) 100%);
+      border-radius: 12px 12px 0 0;
+    }
+    .fadeBottom {
+      bottom: 0;
+      background: linear-gradient(to top, rgba(30,30,30,0.95) 0%, rgba(30,30,30,0) 100%);
+      border-radius: 0 0 12px 12px;
+    }
+    .fadeTop.visible, .fadeBottom.visible {
+      opacity: 1;
     }
     .inputContainer {
       display: flex;
@@ -244,7 +269,7 @@
         max-height: 600px;
         min-height: 450px;
       }
-      #messages {
+      #messagesWrapper {
         min-height: 300px;
       }
       #rightPanel {
@@ -310,7 +335,7 @@
         min-height: 400px;
         padding: 12px;
       }
-      #messages {
+      #messagesWrapper {
         min-height: 250px;
       }
       #rightPanel {
@@ -339,7 +364,11 @@
   <h1>Create Your Own Adventure</h1>
   <div id="container">
     <div id="leftPanel">
-      <div id="messages"></div>
+      <div id="messagesWrapper">
+        <div class="fadeTop"></div>
+        <div id="messages"></div>
+        <div class="fadeBottom"></div>
+      </div>
       <div class="inputContainer">
         <textarea id="userInput" placeholder="Type your message..." rows="3"></textarea>
         <button id="sendBtn">Send</button>

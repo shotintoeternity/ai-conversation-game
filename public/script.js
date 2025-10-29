@@ -1,4 +1,7 @@
 const messagesDiv = document.getElementById('messages');
+const messagesWrapper = document.getElementById('messagesWrapper');
+const fadeTop = document.querySelector('.fadeTop');
+const fadeBottom = document.querySelector('.fadeBottom');
 const userInput = document.getElementById('userInput');
 const sendBtn = document.getElementById('sendBtn');
 const fairyAudio = document.getElementById('fairyAudio');
@@ -10,6 +13,27 @@ let conversation = [];
 let characters = {}; // Track all characters throughout the adventure
 let settings = {}; // Track all settings/locations throughout the adventure
 let adventureStarted = false;
+
+// Update fade indicators based on scroll position
+function updateFadeIndicators() {
+  const atTop = messagesDiv.scrollTop <= 10;
+  const atBottom = messagesDiv.scrollHeight - messagesDiv.scrollTop - messagesDiv.clientHeight <= 10;
+  
+  if (atTop) {
+    fadeTop.classList.remove('visible');
+  } else {
+    fadeTop.classList.add('visible');
+  }
+  
+  if (atBottom) {
+    fadeBottom.classList.remove('visible');
+  } else {
+    fadeBottom.classList.add('visible');
+  }
+}
+
+// Listen for scroll events
+messagesDiv.addEventListener('scroll', updateFadeIndicators);
 
 function appendMessage(sender, text) {
   const div = document.createElement('div');
@@ -24,6 +48,7 @@ function appendMessage(sender, text) {
   
   messagesDiv.appendChild(div);
   messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  updateFadeIndicators();
 }
 
 async function sendMessage() {
