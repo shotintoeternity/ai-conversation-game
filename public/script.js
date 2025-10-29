@@ -49,9 +49,12 @@ function appendMessage(sender, text) {
   const div = document.createElement('div');
   div.className = sender === 'You' ? 'message user-message' : 'message fairy-message';
   
-  // Use innerHTML for Luna to allow bold formatting
+  // Use safe DOM methods to prevent XSS
   if (sender === 'Luna') {
-    div.innerHTML = `<strong>Luna</strong>: ${text}`;
+    const strong = document.createElement('strong');
+    strong.textContent = 'Luna';
+    div.appendChild(strong);
+    div.appendChild(document.createTextNode(': ' + text));
   } else {
     div.textContent = `${sender}: ${text}`;
   }
