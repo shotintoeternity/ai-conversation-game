@@ -24,9 +24,8 @@ A text-based fantasy adventure game powered by AI. Features a whimsical fairy du
 - **API Keys** (stored in Replit Secrets):
   - `GROQ_API_KEY` - Groq AI service
   - `ELEVENLABS_API_KEY` - Voice synthesis
+  - `MODELSLAB_API_KEY` - ModelsLab image generation
   - `OPENAI_API_KEY` - (Legacy, no longer used)
-- **Hardcoded Keys**:
-  - ModelsLab API key embedded in server.js for image generation
 
 ## Recent Changes (October 29, 2025)
 - **Switched to ModelsLab API** - Replaced OpenAI DALL-E 3 with ModelsLab for NSFW-focused hyperrealistic image generation

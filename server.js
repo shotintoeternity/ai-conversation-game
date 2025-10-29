@@ -275,7 +275,7 @@ app.post('/api/message', async (req, res) => {
           scheduler: 'DPMSolverMultistepScheduler',
           guidance_scale: '7.5',
           enhance_prompt: false,
-          key: '3VzkQmGmVsLH3QijdWKdM9A0JTE0qHgKs9ijByh4ZQw1Uec3JfyWUj9iO9rL'
+          key: process.env.MODELSLAB_API_KEY
         })
       });
 
@@ -310,7 +310,7 @@ app.post('/api/message', async (req, res) => {
           const pollResp = await fetch(fetchUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ key: '3VzkQmGmVsLH3QijdWKdM9A0JTE0qHgKs9ijByh4ZQw1Uec3JfyWUj9iO9rL' })
+            body: JSON.stringify({ key: process.env.MODELSLAB_API_KEY })
           });
           
           if (!pollResp.ok) {

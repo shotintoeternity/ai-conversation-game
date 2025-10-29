@@ -50,18 +50,6 @@
     }
     #leftPanel {
       flex: 1;
-      min-width: 400px;
-      background: #2d2d2d;
-      border-radius: 16px;
-      padding: 20px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-      display: flex;
-      flex-direction: column;
-      height: 80vh;
-      max-height: 900px;
-    }
-    #rightPanel {
-      flex: 1.2;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -69,6 +57,18 @@
       border-radius: 16px;
       padding: 20px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      height: 80vh;
+      max-height: 900px;
+    }
+    #rightPanel {
+      flex: 1.2;
+      min-width: 400px;
+      background: #2d2d2d;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      display: flex;
+      flex-direction: column;
       height: 80vh;
       max-height: 900px;
     }
@@ -168,8 +168,9 @@
     }
     #sceneImage {
       width: 100%;
-      max-width: 100%;
+      max-width: 768px;
       height: auto;
+      max-height: 768px;
       border-radius: 12px;
       box-shadow: 0 8px 20px rgba(0,0,0,0.3);
       object-fit: contain;
@@ -264,17 +265,17 @@
         padding: 15px;
       }
       #leftPanel {
+        order: 1;
+        height: auto;
+        min-height: 300px;
+      }
+      #rightPanel {
         order: 2;
         height: 60vh;
         max-height: 600px;
         min-height: 450px;
       }
       #messagesWrapper {
-        min-height: 300px;
-      }
-      #rightPanel {
-        order: 1;
-        height: auto;
         min-height: 300px;
       }
       #messages {
@@ -330,16 +331,16 @@
         gap: 10px;
       }
       #leftPanel {
+        padding: 12px;
+        min-height: 250px;
+      }
+      #rightPanel {
         height: 55vh;
         max-height: 500px;
         min-height: 400px;
         padding: 12px;
       }
       #messagesWrapper {
-        min-height: 250px;
-      }
-      #rightPanel {
-        padding: 12px;
         min-height: 250px;
       }
       #sceneImage {
@@ -364,6 +365,11 @@
   <h1>Create Your Own Adventure</h1>
   <div id="container">
     <div id="leftPanel">
+      <img id="sceneImage" style="display:none;" alt="Adventure scene">
+      <p id="imageStatus">Images will appear here as the story unfolds...</p>
+      <button id="startBtn" style="display:none;">🎭 Start Adventure 🎭</button>
+    </div>
+    <div id="rightPanel">
       <div id="messagesWrapper">
         <div class="fadeTop"></div>
         <div id="messages"></div>
@@ -374,11 +380,6 @@
         <button id="sendBtn">Send</button>
       </div>
       <audio id="fairyAudio" controls></audio>
-    </div>
-    <div id="rightPanel">
-      <img id="sceneImage" style="display:none;" alt="Adventure scene">
-      <p id="imageStatus">Images will appear here as the story unfolds...</p>
-      <button id="startBtn" style="display:none;">🎭 Start Adventure 🎭</button>
     </div>
   </div>
   <script src="script.js"></script>
