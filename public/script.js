@@ -14,6 +14,16 @@ let characters = {}; // Track all characters throughout the adventure
 let settings = {}; // Track all settings/locations throughout the adventure
 let adventureStarted = false;
 
+// Prevent scroll-into-view behavior on mobile when focusing input
+userInput.addEventListener('focus', (e) => {
+  e.preventDefault();
+  const scrollY = window.scrollY;
+  const scrollX = window.scrollX;
+  setTimeout(() => {
+    window.scrollTo(scrollX, scrollY);
+  }, 0);
+});
+
 // Update fade indicators based on scroll position
 function updateFadeIndicators() {
   const atTop = messagesDiv.scrollTop <= 10;
