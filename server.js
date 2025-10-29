@@ -146,25 +146,14 @@ app.post('/api/message', async (req, res) => {
     // 
     // const fullResponse = choice.message?.content?.trim();
 
-    // NEW: ModelsLab Uncensored Chat API (standard endpoint)
+    // NEW: ModelsLab Uncensored Chat API (chat completions endpoint)
     console.log('Sending request to ModelsLab Uncensored Chat API...');
-    
-    // Build conversation as a single prompt (completions endpoint doesn't support messages array)
-    let conversationPrompt = `${SYSTEM_PROMPT}\n\n`;
-    for (const msg of conversation) {
-      if (msg.role === 'user') {
-        conversationPrompt += `User: ${msg.content}\n\n`;
-      } else if (msg.role === 'assistant') {
-        conversationPrompt += `Assistant: ${msg.content}\n\n`;
-      }
-    }
-    conversationPrompt += `User: ${userMessage}\n\nAssistant:`;
     
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 30000); // 30 second timeout
     
     try {
-      var modelsLabChatResp = await fetch('https://modelslab.com/api/uncensored-chat/v1/completions', {
+      var modelsLabChatResp = await fetch('https://modelslab.com/api/uncensored-chat/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${process.env.MODELSLAB_API_KEY}`,
@@ -172,10 +161,14 @@ app.post('/api/message', async (req, res) => {
         },
         body: JSON.stringify({
           model: 'ModelsLab/Llama-3.1-8b-Uncensored-Dare',
-          prompt: conversationPrompt,
-          max_tokens: 800,
-          temperature: 0.9,
-          top_p: 0.95
+          messages: [
+            { role: 'system', content: SYSTEM_PROMPT },
+            ...conversation,
+            { role: 'user', content: userMessage }
+          ],
+          max_tokens: 500,
+          temperature: 0.7,
+          top_p: 0.9
         }),
         signal: controller.signal
       });
@@ -210,10 +203,10 @@ app.post('/api/message', async (req, res) => {
       });
     }
     
-    // Check if text is null or empty
-    const responseText = modelsLabChatData.choices[0].text;
-    if (!responseText || responseText.trim() === '') {
-      console.error('Empty or null text in response. Finish reason:', modelsLabChatData.choices[0].finish_reason);
+    // Check if message content is null or empty
+    const responseMessage = modelsLabChatData.choices[0].message;
+    if (!responseMessage || !responseMessage.content || responseMessage.content.trim() === '') {
+      console.error('Empty or null message in response. Finish reason:', modelsLabChatData.choices[0].finish_reason);
       console.error('Full response:', JSON.stringify(modelsLabChatData));
       return res.status(400).json({ 
         error: 'Empty response',
@@ -221,7 +214,7 @@ app.post('/api/message', async (req, res) => {
       });
     }
     
-    const fullResponse = responseText.trim();
+    const fullResponse = responseMessage.content.trim();
     
     // Check if response is empty
     if (!fullResponse) {
