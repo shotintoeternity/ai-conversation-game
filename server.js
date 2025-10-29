@@ -42,13 +42,14 @@ During the adventure:
 - Remember their choices and preferences
 - If they say "create the adventure" or similar, take creative control and start generating the story for them
 
-CHARACTER TRACKING - ULTRA-PRECISE DETAIL REQUIRED:
+CHARACTER TRACKING - FORENSIC, INHUMAN LEVELS OF DETAIL REQUIRED:
 - Weave physical descriptions naturally into storytelling (hair, eyes, clothing)
-- ALSO add hidden <character_description> tags AFTER response for image consistency
-- Format: <character_description name="Name">Species/ethnicity (e.g., High Elf Nordic/Human Japanese), Age (exact), Height/build (precise), Skin (exact tone with undertones + marks), Face (shape), Eyes (color/shape/details), Brows (shape/color), Nose (shape), Lips (details), Jaw/cheeks (structure), Hair (length/color/texture/style/details), Body (proportions), Clothing HEAD-TO-TOE (every garment: material/color/pattern/fit/details), Accessories (all items with placement), Distinctive features (scars/marks with exact locations), Posture</character_description>
-- Example: <character_description name="Aria">High Elf with Nordic features, appears 24 years old, 5'8" athletic build, fair porcelain skin with cool undertones, oval face, almond-shaped emerald eyes with gold flecks and thick lashes, arched dark eyebrows, straight refined nose, full rose lips, high cheekbones and defined jaw, long silver-white hair mid-back in fishtail braid over right shoulder, slender athletic proportions, forest-green leather armor with gold leaf embroidery on shoulders over cream linen tunic, dark brown leather belt with silver Celtic buckle, fitted green leather pants tucked into black knee-high boots with silver buckles, silver crescent moon necklace and small hoop earrings, thin scar through left eyebrow, pointed elf ears 2 inches, confident posture</character_description>
-- BE FORENSICALLY DETAILED - leave NOTHING vague
-- Players never see these tags - they maintain perfect visual consistency
+- ALSO add hidden <character_description> tags AFTER response for PERFECT image consistency
+- Format: <character_description name="Name">Species/ethnicity (e.g., High Elf Nordic/Human Japanese/Neko catgirl), Age (exact number), Height (exact with inches), Build (precise body type), Skin (exact tone with undertones + texture + any marks/freckles), Face (exact shape), Eyes (exact color with details like flecks/rings + shape + eyelash details), Eyebrows (exact shape + color + thickness), Nose (exact shape + size), Lips (exact fullness + color), Jaw/Cheeks (exact bone structure), Hair (exact length measurement + exact color including highlights + exact texture + exact style with specifics), Body (exact proportions + measurements if relevant), Clothing HEAD-TO-TOE (EVERY SINGLE garment from head to feet: exact material + exact color + exact pattern/design + exact fit + fasteners/buttons + condition), Accessories (EVERY item with exact placement + material + color), Distinctive features (scars/birthmarks/tattoos with EXACT locations + size + color), Posture (exact stance/positioning), Expression (facial expression details)</character_description>
+- Example: <character_description name="Aria">High Elf with Nordic features, appears 24 years old, 5'8" athletic build, fair porcelain skin with cool undertones and faint rose undertone on cheeks, oval face, almond-shaped emerald eyes with gold flecks around pupils and thick dark lashes, arched dark brown eyebrows, straight refined nose, full rose-pink lips, high pronounced cheekbones and defined angular jaw, long silver-white hair reaching mid-back in fishtail braid over right shoulder with loose tendrils framing face, slender athletic proportions with toned arms and legs, forest-green leather armor with gold leaf embroidery on shoulders over cream linen tunic with drawstring neckline, dark brown leather belt with silver Celtic knotwork buckle, fitted green leather pants tucked into black knee-high riding boots with silver buckles, silver crescent moon pendant necklace on 16-inch chain and small silver hoop earrings, thin diagonal scar through left eyebrow (1 inch long), pointed elf ears extending 2 inches beyond human ears, confident upright posture with hand resting on sword hilt, slight smile</character_description>
+- BE FORENSICALLY DETAILED - use INHUMAN levels of precision - describe EVERY visible detail
+- If a character is already established, ALWAYS include their COMPLETE description in subsequent responses when they appear
+- Players never see these tags - they maintain PERFECT visual consistency across ALL images
 
 SETTING TRACKING:
 - When establishing a new setting/location, include hidden setting details in <setting_description> tags
@@ -60,8 +61,6 @@ const VOICE_ID = process.env.ELEVENLABS_VOICE_ID || 'cgSgspJ2msm6clMCkdW9';
 // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-// Store character descriptions across the session
-const characterDatabase = new Map();
 
 app.post('/api/message', async (req, res) => {
   const userMessage = req.body.message;
@@ -288,37 +287,46 @@ app.post('/api/message', async (req, res) => {
         settingContext = `Setting: ${currentSetting[1]}. `;
       }
       
-      // Only include characters that are mentioned in the current response
+      // Include ALL characters from the current response with COMPLETE forensic detail
+      // Use newCharacters (just extracted from this response) to ensure we capture
+      // characters referenced in hidden tags even if not named in visible text
       let characterContext = '';
-      const characterEntries = Object.entries(allCharacters);
-      if (characterEntries.length > 0) {
-        // Find which characters are actually mentioned in this response
-        const mentionedCharacters = characterEntries.filter(([name, desc]) => {
-          return fairyText.toLowerCase().includes(name.toLowerCase());
+      if (Object.keys(newCharacters).length > 0) {
+        // Include ALL characters from THIS response with their COMPLETE forensic descriptions
+        // This ensures perfect visual consistency across all images
+        const characterDescriptions = Object.entries(newCharacters).map(([name, desc]) => {
+          return `${name}: ${desc}`;
         });
-        
-        if (mentionedCharacters.length > 0) {
-          // Focus on the mentioned character(s), showing only one primary character
-          const primaryCharacter = mentionedCharacters[0];
-          characterContext = `Character focus: ${primaryCharacter[0]} - ${primaryCharacter[1]}. `;
-        }
+        characterContext = characterDescriptions.join('; ') + '. ';
+      } else if (Object.keys(allCharacters).length > 0) {
+        // Fallback: if no new characters in this response, use the most recent character
+        const characterEntries = Object.entries(allCharacters);
+        const lastCharacter = characterEntries[characterEntries.length - 1];
+        characterContext = `${lastCharacter[0]}: ${lastCharacter[1]}. `;
       }
       
-      // Build ModelsLab-optimized prompt with NSFW focus
+      // Build ModelsLab-optimized prompt with COMPLETE character descriptions
       let modelsLabPrompt = '';
       
-      // Extract vivid details from character description if available
+      // PRIORITY 1: Include ALL character descriptions with FORENSIC detail
       if (characterContext) {
-        // Character is already tracked with forensic detail
-        modelsLabPrompt = characterContext.replace('Character focus: ', '').replace(/\. $/, '');
+        // Use the COMPLETE forensic character descriptions for perfect consistency
+        modelsLabPrompt = characterContext.replace(/\. $/, '');
       } else {
-        // Fallback to scene description
+        // Fallback to scene description only if no characters are tracked
         modelsLabPrompt = fairyText.substring(0, 400);
       }
       
-      // Add setting details if available
+      // PRIORITY 2: Add setting details for environmental context
       if (settingContext) {
-        modelsLabPrompt += `, ${settingContext.replace('Setting: ', '').replace(/\. $/, '')}`;
+        modelsLabPrompt += `. ${settingContext.replace('Setting: ', '').replace(/\. $/, '')}`;
+      }
+      
+      // PRIORITY 3: Add scene action/context from Luna's current narration
+      // Include key action/scene details from the visible text
+      const sceneAction = fairyText.substring(0, 250).trim();
+      if (characterContext && sceneAction.length > 20) {
+        modelsLabPrompt += `. Scene action: ${sceneAction}`;
       }
       
       // Add ModelsLab best practice quality modifiers

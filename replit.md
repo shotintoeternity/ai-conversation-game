@@ -75,12 +75,24 @@ A text-based fantasy adventure game powered by AI. Features a whimsical fairy du
 - Optimized system prompt (38% reduction)
 - Commented out Groq and OpenAI code for reference
 
+## Character Tracking System - FORENSIC PRECISION
+- **INHUMAN levels of detail**: Luna provides character descriptions with forensic, near-photographic precision
+- **Complete visual consistency**: EVERY image prompt includes the COMPLETE character description for ALL characters being interacted with
+- **Multi-character support**: If multiple characters are in a scene, ALL their complete descriptions are included
+- **Automatic system**:
+  - Extracts `<character_description>` tags from Luna's responses
+  - Stores character data across the entire session
+  - Builds image prompts with PRIORITY 1: Complete character descriptions, PRIORITY 2: Setting details, PRIORITY 3: Scene action
+- **Format requirements**: Species/ethnicity (exact), age (exact number), height (exact inches), build (precise), skin (exact tone + undertones + texture + marks), face (exact shape), eyes (exact color with flecks/rings + shape + eyelash details), eyebrows (exact shape/color/thickness), nose (exact shape/size), lips (exact fullness/color), jaw/cheeks (exact bone structure), hair (exact length + exact color including highlights + exact texture + exact style), body (exact proportions), clothing HEAD-TO-TOE (EVERY garment: exact material/color/pattern/fit/fasteners/condition), accessories (EVERY item with exact placement/material/color), distinctive features (scars/birthmarks/tattoos with EXACT locations/size/color), posture (exact stance), expression (facial details)
+- **Persistence**: Once established, characters' COMPLETE descriptions are maintained across ALL subsequent images
+- **Player-invisible**: Tags are stripped from visible text but ensure perfect visual consistency
+
 ## How It Works
 1. User types a message in the chat interface
-2. Frontend sends message + conversation history to `/api/message`
-3. Backend calls ModelsLab Uncensored Chat API (DarkIdol NSFW model) to generate fairy's response (3-4 sentences max)
-4. Backend extracts character and setting tracking data from XML tags
+2. Frontend sends message + conversation history + tracked characters to `/api/message`
+3. Backend calls ModelsLab Uncensored Chat API to generate fairy's response (3-4 sentences max)
+4. Backend extracts character and setting tracking data from hidden XML tags
 5. Backend converts text response to audio via ElevenLabs
-6. Backend generates hyperrealistic fantasy scene illustration via ModelsLab Image API
+6. Backend generates hyperrealistic fantasy scene illustration via ModelsLab Image API using COMPLETE character descriptions
 7. Frontend displays text, plays audio, and shows the generated image
-8. Conversation continues with full context and character consistency
+8. Conversation continues with full context and perfect character visual consistency
