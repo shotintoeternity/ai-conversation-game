@@ -296,12 +296,53 @@ app.post('/api/message', async (req, res) => {
       const modelsLabData = await modelsLabResp.json();
       console.log('ModelsLab response:', JSON.stringify(modelsLabData).substring(0, 200));
       
-      // ModelsLab returns images in 'output' array
-      if (modelsLabData.output && modelsLabData.output.length > 0) {
+      // Handle async processing
+      if (modelsLabData.status === 'processing') {
+        console.log(`Image is processing, ETA: ${modelsLabData.eta || 30}s, polling...`);
+        const fetchUrl = modelsLabData.fetch_result;
+        const maxAttempts = 30; // 60 seconds max (2s intervals)
+        let attempt = 0;
+        
+        while (attempt < maxAttempts) {
+          attempt++;
+          // Wait 2 seconds before polling
+          await new Promise(resolve => setTimeout(resolve, 2000));
+          
+          console.log(`Polling attempt ${attempt}/${maxAttempts}...`);
+          const pollResp = await fetch(fetchUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ key: 'MpMCXltrvh44W1hIiaoM0qcrvTjfiP528f9Mgk3p5NHhVomYl1jVyDampU7v' })
+          });
+          
+          if (!pollResp.ok) {
+            console.error('Polling failed, status:', pollResp.status);
+            break;
+          }
+          
+          const pollData = await pollResp.json();
+          console.log('Poll response status:', pollData.status);
+          
+          if (pollData.status === 'success' && pollData.output && pollData.output.length > 0) {
+            imageUrl = pollData.output[0];
+            console.log('Image generated successfully from ModelsLab after polling');
+            break;
+          } else if (pollData.status === 'error') {
+            console.error('ModelsLab error:', pollData.message);
+            throw new Error(pollData.message || 'Image generation failed');
+          }
+          // else status is still "processing", continue polling
+        }
+        
+        if (!imageUrl) {
+          throw new Error('Image generation timed out');
+        }
+      } else if (modelsLabData.status === 'success' && modelsLabData.output && modelsLabData.output.length > 0) {
+        // Immediate success (rare but possible)
         imageUrl = modelsLabData.output[0];
-        console.log('Image generated successfully from ModelsLab');
+        console.log('Image generated successfully from ModelsLab (immediate)');
       } else {
-        throw new Error('No image URL in ModelsLab response');
+        throw new Error(`Unexpected ModelsLab response status: ${modelsLabData.status}`);
       }
     } catch (imgErr) {
       console.error('Image generation error:', imgErr);
