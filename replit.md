@@ -54,9 +54,14 @@ A text-based fantasy adventure game powered by AI. Features a whimsical fairy du
   - Removed "Create Your Own Adventure" title/logo for cleaner interface
   - Layout reversed: image panel on left (768x768 max), story panel on right
   - Invisible scrollbar with gradient fade indicators (top/bottom)
-  - Increased text size (18px desktop, 17px tablet, 16px mobile)
-  - Expanded message area (80vh height, up to 900px)
+  - Increased text size (18px desktop, 15px tablet, 14px mobile)
+  - Expanded message area (80vh height, up to 900px on desktop)
   - Mobile-responsive: image first, then text below
+  - **Mobile optimization: EVERYTHING fits on one screen (100vh constraint)**
+    - iPhone/Android: No page scrolling, fully contained interface
+    - Image panel: 35vh on tablets, 32vh on phones
+    - Text panel: 65vh on tablets, 68vh on phones
+    - Compact spacing and font sizes for maximum content visibility
   - Clean, modern reading experience
 - Commented out OpenAI DALL-E code in server.js for easy reference
 
