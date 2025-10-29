@@ -35,7 +35,7 @@ A text-based fantasy adventure game powered by AI. Features a whimsical fairy du
 - **Secured API credentials** - ModelsLab API key now stored in Replit Secrets (used for both chat and images)
 - **Current ModelsLab Chat configuration**:
   - Model: `aifeifei798/DarkIdol-Llama-3.1-8B-Instruct-1.2-Uncensored` (99.81% uncensored pass rate)
-  - Endpoint: `https://modelslab.com/api/v6/completions` (regular endpoint with Bearer auth)
+  - Endpoint: `https://modelslab.com/api/v6/chat/completions` (OpenAI-compatible with Bearer auth)
   - max_tokens: 500
   - temperature: 0.9, top_p: 0.95
   - No content filtering or safety checks

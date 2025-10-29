@@ -146,25 +146,14 @@ app.post('/api/message', async (req, res) => {
     // 
     // const fullResponse = choice.message?.content?.trim();
 
-    // NEW: ModelsLab Uncensored Chat API (regular v6 endpoint)
+    // NEW: ModelsLab Uncensored Chat API (OpenAI-compatible chat completions)
     console.log('Sending request to ModelsLab Uncensored Chat API...');
-    
-    // Build conversation prompt from history
-    let conversationPrompt = `${SYSTEM_PROMPT}\n\n`;
-    for (const msg of conversation) {
-      if (msg.role === 'user') {
-        conversationPrompt += `User: ${msg.content}\n\n`;
-      } else if (msg.role === 'assistant') {
-        conversationPrompt += `Assistant: ${msg.content}\n\n`;
-      }
-    }
-    conversationPrompt += `User: ${userMessage}\n\nAssistant:`;
     
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 30000); // 30 second timeout
     
     try {
-      var modelsLabChatResp = await fetch('https://modelslab.com/api/v6/completions', {
+      var modelsLabChatResp = await fetch('https://modelslab.com/api/v6/chat/completions', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${process.env.MODELSLAB_API_KEY}`,
@@ -172,7 +161,11 @@ app.post('/api/message', async (req, res) => {
         },
         body: JSON.stringify({
           model: 'aifeifei798/DarkIdol-Llama-3.1-8B-Instruct-1.2-Uncensored',
-          prompt: conversationPrompt,
+          messages: [
+            { role: 'system', content: SYSTEM_PROMPT },
+            ...conversation,
+            { role: 'user', content: userMessage }
+          ],
           max_tokens: 500,
           temperature: 0.9,
           top_p: 0.95,
@@ -213,7 +206,7 @@ app.post('/api/message', async (req, res) => {
       });
     }
     
-    const fullResponse = modelsLabChatData.choices[0].text.trim();
+    const fullResponse = modelsLabChatData.choices[0].message.content.trim();
     
     // Check if response is empty
     if (!fullResponse) {
