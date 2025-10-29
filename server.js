@@ -166,7 +166,7 @@ app.post('/api/message', async (req, res) => {
             ...conversation,
             { role: 'user', content: userMessage }
           ],
-          max_tokens: 500,
+          max_tokens: 1500,
           temperature: 0.7,
           top_p: 0.9
         }),
