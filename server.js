@@ -9,7 +9,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Validate required API keys on startup
-const requiredKeys = ['GROQ_API_KEY', 'ELEVENLABS_API_KEY', 'MODELSLAB_API_KEY'];
+const requiredKeys = ['ELEVENLABS_API_KEY', 'MODELSLAB_API_KEY'];
 const missingKeys = requiredKeys.filter(key => !process.env[key]);
 if (missingKeys.length > 0) {
   console.error(`❌ STARTUP FAILED: Missing required environment variables: ${missingKeys.join(', ')}`);
@@ -84,24 +84,91 @@ app.post('/api/message', async (req, res) => {
     }
 
     // For all other messages, generate dynamically
-    console.log('Sending request to Groq API...');
+    // COMMENTED OUT: Groq API (replaced with ModelsLab Uncensored Chat)
+    // console.log('Sending request to Groq API...');
+    // const controller = new AbortController();
+    // const timeout = setTimeout(() => controller.abort(), 25000); // 25 second timeout
+    // 
+    // try {
+    //   var groqResp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    //     method: 'POST',
+    //     headers: {
+    //       'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
+    //       'Content-Type': 'application/json'
+    //     },
+    //     body: JSON.stringify({
+    //       model: 'llama-3.3-70b-versatile',
+    //       messages: [
+    //         { role: 'system', content: SYSTEM_PROMPT },
+    //         ...conversation,
+    //         { role: 'user', content: userMessage }
+    //       ]
+    //     }),
+    //     signal: controller.signal
+    //   });
+    // } catch (fetchErr) {
+    //   clearTimeout(timeout);
+    //   if (fetchErr.name === 'AbortError') {
+    //     return res.status(504).json({ 
+    //       error: 'Request timeout',
+    //       textError: 'The AI is taking too long to respond. Please try again with a simpler message.'
+    //     });
+    //   }
+    //   throw fetchErr;
+    // }
+    // clearTimeout(timeout);
+    // console.log('Groq API response received');
+    //
+    // if (!groqResp.ok) {
+    //   const errText = await groqResp.text();
+    //   throw new Error(`Groq API error: ${errText}`);
+    // }
+    //
+    // const groqData = await groqResp.json();
+    // 
+    // // Check if response was blocked or filtered
+    // if (!groqData.choices || groqData.choices.length === 0) {
+    //   return res.status(400).json({ 
+    //     error: 'Content generation failed',
+    //     textError: 'Luna was unable to generate a response for this interaction. Please try a different approach.'
+    //   });
+    // }
+    // 
+    // const choice = groqData.choices[0];
+    // 
+    // // Check for content filtering
+    // if (choice.finish_reason === 'content_filter' || choice.finish_reason === 'safety') {
+    //   return res.status(400).json({ 
+    //     error: 'Content filtered',
+    //     textError: 'This content was blocked by safety filters. Please try a different direction for your adventure.'
+    //   });
+    // }
+    // 
+    // const fullResponse = choice.message?.content?.trim();
+
+    // NEW: ModelsLab Uncensored Chat API
+    console.log('Sending request to ModelsLab Uncensored Chat API...');
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 25000); // 25 second timeout
+    const timeout = setTimeout(() => controller.abort(), 30000); // 30 second timeout
     
     try {
-      var groqResp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      var modelsLabChatResp = await fetch('https://modelslab.com/api/v1/enterprise/uncensored_chat/start', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: 'llama-3.3-70b-versatile',
+          key: process.env.MODELSLAB_API_KEY,
+          model: 'ModelsLab/Llama-3.1-8b-Uncensored-Dare',
           messages: [
             { role: 'system', content: SYSTEM_PROMPT },
             ...conversation,
             { role: 'user', content: userMessage }
-          ]
+          ],
+          max_tokens: 500,
+          temperature: 0.9,
+          top_p: 0.95,
+          top_k: 50
         }),
         signal: controller.signal
       });
@@ -116,34 +183,26 @@ app.post('/api/message', async (req, res) => {
       throw fetchErr;
     }
     clearTimeout(timeout);
-    console.log('Groq API response received');
+    console.log('ModelsLab Chat API response received');
 
-    if (!groqResp.ok) {
-      const errText = await groqResp.text();
-      throw new Error(`Groq API error: ${errText}`);
+    if (!modelsLabChatResp.ok) {
+      const errText = await modelsLabChatResp.text();
+      console.error('ModelsLab Chat API error:', errText);
+      throw new Error(`ModelsLab Chat API error: ${errText}`);
     }
 
-    const groqData = await groqResp.json();
+    const modelsLabChatData = await modelsLabChatResp.json();
+    console.log('ModelsLab Chat response:', JSON.stringify(modelsLabChatData).substring(0, 200));
     
-    // Check if response was blocked or filtered
-    if (!groqData.choices || groqData.choices.length === 0) {
+    // Check if response was successful
+    if (modelsLabChatData.status !== 'success' || !modelsLabChatData.output) {
       return res.status(400).json({ 
         error: 'Content generation failed',
         textError: 'Luna was unable to generate a response for this interaction. Please try a different approach.'
       });
     }
     
-    const choice = groqData.choices[0];
-    
-    // Check for content filtering
-    if (choice.finish_reason === 'content_filter' || choice.finish_reason === 'safety') {
-      return res.status(400).json({ 
-        error: 'Content filtered',
-        textError: 'This content was blocked by safety filters. Please try a different direction for your adventure.'
-      });
-    }
-    
-    const fullResponse = choice.message?.content?.trim();
+    const fullResponse = modelsLabChatData.output.trim();
     
     // Check if response is empty
     if (!fullResponse) {
