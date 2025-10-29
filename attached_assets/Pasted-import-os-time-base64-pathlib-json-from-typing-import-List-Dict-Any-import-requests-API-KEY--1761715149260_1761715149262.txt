@@ -1,0 +1,128 @@
+import os, time, base64, pathlib, json
+from typing import List, Dict, Any
+import requests
+
+API_KEY = os.getenv("MODELSLAB_API_KEY")
+assert API_KEY, "Set the MODELSLAB_API_KEY secret in Replit."
+
+V6_TXT2IMG = "https://modelslab.com/api/v6/images/text2img"
+V6_FETCH   = "https://modelslab.com/api/v6/images/fetch"
+IMAGES_DIR = pathlib.Path("images")
+IMAGES_DIR.mkdir(exist_ok=True)
+
+def text2img_omnigenxl(
+    prompt: str,
+    *,
+    model_id: str = "omnigenxl-nsfw-sfw",
+    width: int = 768,
+    height: int = 768,
+    steps: int = 31,          # 21/31/41 commonly supported; 31 default is fine
+    samples: int = 1,         # ≤ 4
+    safety_checker: bool = False,   # False = allow NSFW; True = block/label per checker type
+    safety_checker_type: str = "sensitive_content_text",  # blur|pixelate|black|sensitive_content_text
+    base64_out: bool = False,
+    guidance_scale: float = 7.5,
+    negative_prompt: str = "blurry, bad anatomy, extra fingers"
+) -> Dict[str, Any]:
+    """Kick off a v6 text2img job; if queued, poll /v6/images/fetch until ready."""
+    payload = {
+        "key": API_KEY,
+        "model_id": model_id,
+        "prompt": prompt,
+        "negative_prompt": negative_prompt,
+        "width": width,
+        "height": height,
+        "samples": samples,
+        "num_inference_steps": steps,
+        "safety_checker": safety_checker,
+        "safety_checker_type": safety_checker_type,
+        "guidance_scale": guidance_scale,
+        "base64": base64_out
+    }
+    r = requests.post(V6_TXT2IMG, json=payload, timeout=120)
+    r.raise_for_status()
+    data = r.json()
+
+    # Fast path: sometimes you get images immediately
+    if isinstance(data, dict) and data.get("status") == "success" and data.get("output"):
+        return data
+
+    # Queued path: poll using id/request_id
+    request_id = data.get("id") or data.get("request_id")
+    if not request_id:
+        raise RuntimeError(f"Unexpected response (no id): {json.dumps(data)[:500]}")
+
+    for _ in range(60):  # ~3 minutes
+        f = requests.post(V6_FETCH, json={"key": API_KEY, "request_id": str(request_id)}, timeout=60)
+        f.raise_for_status()
+        out = f.json()
+        if out.get("status") == "success" and out.get("output"):
+            return out
+        time.sleep(3)
+
+    raise TimeoutError("Generation still processing. Re-run fetch with the same request_id later.")
+
+def _save_url(url: str, idx: int) -> str:
+    resp = requests.get(url, timeout=120)
+    resp.raise_for_status()
+    suffix = ".jpg"
+    fname = IMAGES_DIR / f"omnigenxl_{int(time.time())}_{idx}{suffix}"
+    with open(fname, "wb") as f:
+        f.write(resp.content)
+    return str(fname)
+
+def _save_b64(b64str: str, idx: int) -> str:
+    binary = base64.b64decode(b64str.split(",")[-1])
+    fname = IMAGES_DIR / f"omnigenxl_{int(time.time())}_{idx}.png"
+    with open(fname, "wb") as f:
+        f.write(binary)
+    return str(fname)
+
+def save_outputs(response: Dict[str, Any]) -> List[str]:
+    """Persist images from the API response to ./images and return filepaths."""
+    paths = []
+    outputs = response.get("output") or []
+    base64_mode = isinstance(outputs, list) and outputs and outputs[0].startswith(("iVBOR", "/9j/"))  # rough b64 sniff
+    for i, item in enumerate(outputs):
+        if base64_mode:
+            paths.append(_save_b64(item, i))
+        else:
+            paths.append(_save_url(item, i))
+    return paths
+
+# --- Optional: Uncensored text completions (v6) ---
+# POST https://modelslab.com/api/v6/completions ; model: "ModelsLab/Llama-3.1-8b-Uncensored-Dare"
+def uncensored_completion(prompt: str, max_tokens: int = 128) -> str:
+    url = "https://modelslab.com/api/v6/completions"
+    headers = {"Authorization": f"Bearer {API_KEY}", "Content-Type": "application/json"}
+    payload = {
+        "model": "ModelsLab/Llama-3.1-8b-Uncensored-Dare",
+        "prompt": prompt,
+        "max_tokens": max_tokens,
+        "temperature": 0.7,
+        "top_p": 1,
+        "stream": False
+    }
+    r = requests.post(url, headers=headers, json=payload, timeout=60)
+    r.raise_for_status()
+    data = r.json()
+    return (data.get("choices") or [{}])[0].get("text", "").strip()
+
+if __name__ == "__main__":
+    # DEMO: generate with OmniGenXL
+    demo = text2img_omnigenxl(
+        prompt="cinematic portrait, studio lighting, shallow depth of field",
+        model_id="omnigenxl-nsfw-sfw",
+        width=768, height=768,
+        steps=31,
+        samples=1,
+        safety_checker=False,  # set True to block/label NSFW per checker type
+        safety_checker_type="sensitive_content_text",
+        base64_out=False
+    )
+    files = save_outputs(demo)
+    print("Saved:", files)
+
+    # DEMO: uncensored text (optional)
+    txt = uncensored_completion("List two pros and two cons of allowing NSFW generation.")
+    print("LLM:", txt)
