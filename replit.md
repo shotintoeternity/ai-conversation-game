@@ -14,8 +14,9 @@ A text-based fantasy adventure game powered by AI. Features a whimsical fairy du
 
 ## Technology Stack
 - Node.js with Express.js
-- Groq API (Mixtral model) for AI conversations
-- ElevenLabs API for text-to-speech
+- Groq API (Llama 3.3 70B) for AI conversations
+- ElevenLabs API for text-to-speech (Voice ID: cgSgspJ2msm6clMCkdW9)
+- ModelsLab API for hyperrealistic fantasy image generation
 - Vanilla JavaScript frontend
 
 ## Configuration
@@ -23,22 +24,34 @@ A text-based fantasy adventure game powered by AI. Features a whimsical fairy du
 - **API Keys** (stored in Replit Secrets):
   - `GROQ_API_KEY` - Groq AI service
   - `ELEVENLABS_API_KEY` - Voice synthesis
-  - `ELEVENLABS_VOICE_ID` - (optional) Default: EXAVITQu4vr4xnSDxMaL
+  - `OPENAI_API_KEY` - (Legacy, no longer used)
+- **Hardcoded Keys**:
+  - ModelsLab API key embedded in server.js for image generation
 
-## Recent Changes (October 25, 2025)
+## Recent Changes (October 29, 2025)
+- **Switched to ModelsLab API** - Replaced OpenAI DALL-E 3 with ModelsLab for image generation (hyperrealistic fantasy scenes)
+- Commented out OpenAI DALL-E code in server.js for easy reference
+- Added enhanced logging for audio and image generation steps
+
+## Previous Changes
 - Initial setup in Replit environment
 - Updated server to use port 5000 with host 0.0.0.0
 - Configured workflow for automatic server start
 - Set up API keys via Replit Secrets
-- **Added DALL-E 3 image generation** - Each fairy response now includes a scene illustration
+- Added image generation - Each fairy response now includes a scene illustration
 - Updated UI with split-panel layout for chat and images
 - Upgraded AI model from Mixtral to Llama 3.3 70B
+- Implemented comprehensive error handling for all APIs
+- Enhanced character tracking with forensic-level detail
+- Mobile-responsive design with image-first layout
+- Optimized system prompt (38% reduction)
 
 ## How It Works
 1. User types a message in the chat interface
 2. Frontend sends message + conversation history to `/api/message`
-3. Backend calls Groq API (Llama 3.3) to generate fairy's response
-4. Backend converts text response to audio via ElevenLabs
-5. Backend generates scene illustration via OpenAI DALL-E 3
-6. Frontend displays text, plays audio, and shows the generated image
-7. Conversation continues with full context
+3. Backend calls Groq API (Llama 3.3 70B) to generate fairy's response (3-4 sentences max)
+4. Backend extracts character and setting tracking data from XML tags
+5. Backend converts text response to audio via ElevenLabs
+6. Backend generates hyperrealistic fantasy scene illustration via ModelsLab API
+7. Frontend displays text, plays audio, and shows the generated image
+8. Conversation continues with full context and character consistency

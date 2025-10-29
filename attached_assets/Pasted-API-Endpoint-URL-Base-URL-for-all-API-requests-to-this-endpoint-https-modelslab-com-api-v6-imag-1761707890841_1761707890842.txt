@@ -1,0 +1,69 @@
+API Endpoint URL
+Base URL for all API requests to this endpoint.
+
+
+https://modelslab.com/api/v6/images/text2img
+Your API Authentication Key
+Your personal API key for authenticating requests. Keep this secure and never share it publicly.
+
+••••••••••••••••••••••••••••••••
+
+Integration Examples
+Production-ready code samples for API integration
+
+Json
+Curl
+Javascript
+Python
+Php
+Java
+C#
+Go
+Ruby
+
+const endpointUrl = 'https://modelslab.com/api/v6/images/text2img';
+
+const requestBody = {
+    "prompt": "R3alisticF, hauntingly beautiful oriental necromancer, long flowing brown hair, bangs, darkly tanned skin, earrings, bone necklaces, dark eyeshadow, red lips, vibrant, front-laced transparent, filmy silk blouse, cleavage, holding skull, in a sandstone room lit by candles, High Detail, Perfect Composition, high contrast, silhouetted, chiascuro",
+    "model_id": "nsfw",
+    "lora_model": [],
+    "width": "1024",
+    "height": "1024",
+    "negative_prompt": "(worst quality:2), (low quality:2), (normal quality:2), (jpeg artifacts), (blurry), (duplicate), (morbid), (mutilated), (out of frame), (extra limbs), (bad anatomy), (disfigured), (deformed), (cross-eye), (glitch), (oversaturated), (overexposed), (underexposed), (bad proportions), (bad hands), (bad feet), (cloned face), (long neck), (missing arms), (missing legs), (extra fingers), (fused fingers), (poorly drawn hands), (poorly drawn face), (mutation), (deformed eyes), watermark, text, logo, signature, grainy, tiling, censored, nsfw, ugly, blurry eyes, noisy image, bad lighting, unnatural skin, asymmetry",
+    "num_inference_steps": "31",
+    "scheduler": "DPMSolverMultistepScheduler",
+    "guidance_scale": "7.5",
+    "enhance_prompt": false,
+    "key": "MpMCXltrvh44W1hIiaoM0qcrvTjfiP528f9Mgk3p5NHhVomYl1jVyDampU7v"
+  };
+
+async function makeApiRequest() {
+  try {
+    const response = await fetch(endpointUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody)
+    });
+
+    if (!response.ok) {
+      let errorResult;
+      try {
+        errorResult = await response.json();
+      } catch (e) {
+        errorResult = { error: { message: await response.text() } };
+      }
+      throw new Error(`API Error (${response.status}): ${errorResult.error?.message || response.statusText || 'Unknown error'}`);
+    }
+
+    const result = await response.json();
+    console.log('API Response:', result);
+    return result;
+  } catch (error) {
+    console.error('Error making API request:', error.message);
+    throw error;
+  }
+}
+
+makeApiRequest();

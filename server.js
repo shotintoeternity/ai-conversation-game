@@ -225,16 +225,61 @@ app.post('/api/message', async (req, res) => {
       
       const imagePrompt = `Hyperrealistic fantasy scene focusing on the single most important character based on the current interaction. ${settingContext}${characterContext}Scene: ${fairyText.substring(0, 300)}. Style: photorealistic rendering with fantastical elements, cinematic lighting, highly detailed, vivid colors, magical realism. Show ONLY the most important character in this scene - do not include multiple versions or other characters. IMPORTANT: No text, no words, no letters, no captions, no subtitles, no writing, no signs, no labels - pure visual imagery only.`;
       
-      console.log('Calling OpenAI DALL-E...');
-      const imageResp = await openai.images.generate({
-        model: 'dall-e-3',
-        prompt: imagePrompt,
-        n: 1,
-        size: '1024x1024',
-        quality: 'standard'
+      // COMMENTED OUT: OpenAI DALL-E 3 image generation
+      // console.log('Calling OpenAI DALL-E...');
+      // const imageResp = await openai.images.generate({
+      //   model: 'dall-e-3',
+      //   prompt: imagePrompt,
+      //   n: 1,
+      //   size: '1024x1024',
+      //   quality: 'standard'
+      // });
+      // console.log('Image generated successfully');
+      // imageUrl = imageResp.data[0].url;
+
+      // NEW: ModelsLab API for image generation
+      console.log('Calling ModelsLab API...');
+      const modelsLabResp = await fetch('https://modelslab.com/api/v6/images/text2img', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          prompt: imagePrompt,
+          model_id: 'nsfw',
+          width: '1024',
+          height: '1024',
+          negative_prompt: '(worst quality:2), (low quality:2), (normal quality:2), (jpeg artifacts), (blurry), (duplicate), (morbid), (mutilated), (out of frame), (extra limbs), (bad anatomy), (disfigured), (deformed), (cross-eye), (glitch), (oversaturated), (overexposed), (underexposed), (bad proportions), (bad hands), (bad feet), (cloned face), (long neck), (missing arms), (missing legs), (extra fingers), (fused fingers), (poorly drawn hands), (poorly drawn face), (mutation), text, words, letters, captions, subtitles, writing, signs, labels',
+          num_inference_steps: '31',
+          scheduler: 'DPMSolverMultistepScheduler',
+          guidance_scale: '7.5',
+          enhance_prompt: false,
+          key: 'MpMCXltrvh44W1hIiaoM0qcrvTjfiP528f9Mgk3p5NHhVomYl1jVyDampU7v'
+        })
       });
-      console.log('Image generated successfully');
-      imageUrl = imageResp.data[0].url;
+
+      console.log('ModelsLab response status:', modelsLabResp.status);
+      
+      if (!modelsLabResp.ok) {
+        let errorResult;
+        try {
+          errorResult = await modelsLabResp.json();
+        } catch (e) {
+          errorResult = { error: { message: await modelsLabResp.text() } };
+        }
+        throw new Error(`ModelsLab API Error (${modelsLabResp.status}): ${errorResult.error?.message || modelsLabResp.statusText || 'Unknown error'}`);
+      }
+
+      const modelsLabData = await modelsLabResp.json();
+      console.log('ModelsLab response:', JSON.stringify(modelsLabData).substring(0, 200));
+      
+      // ModelsLab returns images in 'output' array
+      if (modelsLabData.output && modelsLabData.output.length > 0) {
+        imageUrl = modelsLabData.output[0];
+        console.log('Image generated successfully from ModelsLab');
+      } else {
+        throw new Error('No image URL in ModelsLab response');
+      }
     } catch (imgErr) {
       console.error('Image generation error:', imgErr);
       if (imgErr.code === 'content_policy_violation') {
