@@ -287,8 +287,9 @@
         min-height: 0;
       }
       #messagesWrapper {
-        flex: 1;
+        flex: 0 1 auto;
         min-height: 0;
+        max-height: 25vh;
         overflow: hidden;
       }
       #messages {
@@ -396,6 +397,9 @@
       }
       #messages {
         padding: 3px;
+      }
+      #messagesWrapper {
+        max-height: 20vh;
       }
       #imageStatus {
         font-size: 0.8em;
