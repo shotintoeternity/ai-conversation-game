@@ -223,7 +223,27 @@ app.post('/api/message', async (req, res) => {
         }
       }
       
-      const imagePrompt = `Hyperrealistic fantasy scene focusing on the single most important character based on the current interaction. ${settingContext}${characterContext}Scene: ${fairyText.substring(0, 300)}. Style: photorealistic rendering with fantastical elements, cinematic lighting, highly detailed, vivid colors, magical realism. Show ONLY the most important character in this scene - do not include multiple versions or other characters. IMPORTANT: No text, no words, no letters, no captions, no subtitles, no writing, no signs, no labels - pure visual imagery only.`;
+      // Build ModelsLab-optimized prompt with NSFW focus
+      let modelsLabPrompt = '';
+      
+      // Extract vivid details from character description if available
+      if (characterContext) {
+        // Character is already tracked with forensic detail
+        modelsLabPrompt = characterContext.replace('Character focus: ', '').replace(/\. $/, '');
+      } else {
+        // Fallback to scene description
+        modelsLabPrompt = fairyText.substring(0, 400);
+      }
+      
+      // Add setting details if available
+      if (settingContext) {
+        modelsLabPrompt += `, ${settingContext.replace('Setting: ', '').replace(/\. $/, '')}`;
+      }
+      
+      // Add ModelsLab best practice quality modifiers
+      modelsLabPrompt += ', ultra realistic, photorealistic, hyperrealistic, 8K RAW photo, sharp focus, intricate details, highly detailed, vivid colors, cinematic lighting, volumetric fog, perfect composition, correct anatomy, flawless skin texture, natural lighting, professional photography, Canon EOS R3, f/1.4, ISO 200';
+      
+      console.log('ModelsLab prompt preview:', modelsLabPrompt.substring(0, 150) + '...');
       
       // COMMENTED OUT: OpenAI DALL-E 3 image generation
       // console.log('Calling OpenAI DALL-E...');
@@ -237,7 +257,7 @@ app.post('/api/message', async (req, res) => {
       // console.log('Image generated successfully');
       // imageUrl = imageResp.data[0].url;
 
-      // NEW: ModelsLab API for image generation
+      // NEW: ModelsLab API for image generation (NSFW-focused)
       console.log('Calling ModelsLab API...');
       const modelsLabResp = await fetch('https://modelslab.com/api/v6/images/text2img', {
         method: 'POST',
@@ -245,15 +265,18 @@ app.post('/api/message', async (req, res) => {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          prompt: imagePrompt,
-          model_id: 'nsfw',
+          prompt: modelsLabPrompt,
+          model_id: 'newrealityxl-global-nsfw',
           width: '1024',
           height: '1024',
-          negative_prompt: '(worst quality:2), (low quality:2), (normal quality:2), (jpeg artifacts), (blurry), (duplicate), (morbid), (mutilated), (out of frame), (extra limbs), (bad anatomy), (disfigured), (deformed), (cross-eye), (glitch), (oversaturated), (overexposed), (underexposed), (bad proportions), (bad hands), (bad feet), (cloned face), (long neck), (missing arms), (missing legs), (extra fingers), (fused fingers), (poorly drawn hands), (poorly drawn face), (mutation), text, words, letters, captions, subtitles, writing, signs, labels',
-          num_inference_steps: '31',
-          scheduler: 'DPMSolverMultistepScheduler',
-          guidance_scale: '7.5',
-          enhance_prompt: false,
+          negative_prompt: '(worst quality:2), (low quality:2), (normal quality:2), (jpeg artifacts), (blurry), (duplicate), (morbid), (mutilated), (out of frame), (extra limbs), (bad anatomy), (disfigured), (deformed), (cross-eye), (glitch), (oversaturated), (overexposed), (underexposed), (bad proportions), (bad hands), (bad feet), (cloned face), (long neck), (missing arms), (missing legs), (extra fingers), (fused fingers), (too many fingers), (poorly drawn hands), (poorly drawn face), (mutation), (ugly), (bad face), (distorted face), text, words, letters, captions, subtitles, writing, signs, labels, watermark, (child:1.5), ((((underage)))), ((((child)))), (((kid))), (((preteen))), (teen:1.5)',
+          num_inference_steps: '30',
+          scheduler: 'UniPCMultistepScheduler',
+          guidance_scale: 7.5,
+          safety_checker: 'no',
+          enhance_prompt: 'yes',
+          seed: null,
+          samples: '1',
           key: 'MpMCXltrvh44W1hIiaoM0qcrvTjfiP528f9Mgk3p5NHhVomYl1jVyDampU7v'
         })
       });

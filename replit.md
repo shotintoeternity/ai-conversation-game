@@ -29,7 +29,15 @@ A text-based fantasy adventure game powered by AI. Features a whimsical fairy du
   - ModelsLab API key embedded in server.js for image generation
 
 ## Recent Changes (October 29, 2025)
-- **Switched to ModelsLab API** - Replaced OpenAI DALL-E 3 with ModelsLab for image generation (hyperrealistic fantasy scenes)
+- **Switched to ModelsLab API** - Replaced OpenAI DALL-E 3 with ModelsLab for NSFW-focused hyperrealistic image generation
+- **Implemented ModelsLab best practices**:
+  - Using `newrealityxl-global-nsfw` model for unrestricted content
+  - Dynamic prompt building from forensic character descriptions
+  - Professional photography quality keywords (8K RAW, Canon EOS R3, f/1.4, etc.)
+  - Safety checker disabled for mature content
+  - Enhanced negative prompts with age safeguards
+  - UniPCMultistepScheduler for optimal quality
+  - Prompt enhancement enabled
 - Commented out OpenAI DALL-E code in server.js for easy reference
 - Added enhanced logging for audio and image generation steps
 
