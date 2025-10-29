@@ -355,16 +355,16 @@ app.post('/api/message', async (req, res) => {
         },
         body: JSON.stringify({
           prompt: modelsLabPrompt,
-          model_id: 'boziorealvisxlv4',
-          lora_model: 'nsfw-sdxl',
+          model_id: 'omnigenxl-nsfw-sfw',
           width: 768,
           height: 768,
-          negative_prompt: '(worst quality:2), (low quality:2), (normal quality:2), (jpeg artifacts), (blurry), (duplicate), (morbid), (mutilated), (out of frame), (extra limbs), (bad anatomy), (disfigured), (deformed), (cross-eye), (glitch), (oversaturated), (overexposed), (underexposed), (bad proportions), (bad hands), (bad feet), (cloned face), (long neck), (missing arms), (missing legs), (extra fingers), (fused fingers), (poorly drawn hands), (poorly drawn face), (mutation), (deformed eyes), watermark, text, logo, signature, grainy, tiling, censored, nsfw, ugly, blurry eyes, noisy image, bad lighting, unnatural skin, asymmetry',
-          num_inference_steps: '31',
-          scheduler: 'DPMSolverMultistepScheduler',
-          guidance_scale: '7.5',
-          enhance_prompt: false,
+          samples: 1,
+          negative_prompt: 'blurry, bad anatomy, extra fingers, extra limbs, bad hands, poorly drawn hands, poorly drawn face, mutation, deformed eyes, watermark, text, logo, signature, grainy, tiling, censored, ugly, noisy image, bad lighting, unnatural skin',
+          num_inference_steps: 31,
+          guidance_scale: 7.5,
           safety_checker: false,
+          safety_checker_type: 'sensitive_content_text',
+          base64: false,
           key: process.env.MODELSLAB_API_KEY
         })
       });

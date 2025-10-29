@@ -42,11 +42,12 @@ A text-based fantasy adventure game powered by AI. Features a whimsical fairy du
   - NSFW-optimized model
   - Uses messages array (OpenAI format)
 - **Current ModelsLab Image configuration**:
-  - Model: `boziorealvisxlv4` with `nsfw-sdxl` LoRA
-  - Resolution: 768x768 (capped in UI)
-  - Scheduler: DPMSolverMultistepScheduler
+  - Model: `omnigenxl-nsfw-sfw` (OmniGenXL - NSFW & SFW capable)
+  - Resolution: 768x768
   - 31 inference steps for quality
+  - guidance_scale: 7.5
   - safety_checker: false (per compliance team requirements)
+  - safety_checker_type: 'sensitive_content_text'
   - Dynamic prompt building from forensic character descriptions
   - Professional photography quality keywords
   - Comprehensive negative prompts for quality control
