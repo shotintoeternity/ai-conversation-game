@@ -146,14 +146,25 @@ app.post('/api/message', async (req, res) => {
     // 
     // const fullResponse = choice.message?.content?.trim();
 
-    // NEW: ModelsLab Uncensored Chat API (OpenAI-compatible chat completions)
+    // NEW: ModelsLab Uncensored Chat API (standard endpoint)
     console.log('Sending request to ModelsLab Uncensored Chat API...');
+    
+    // Build conversation as a single prompt (completions endpoint doesn't support messages array)
+    let conversationPrompt = `${SYSTEM_PROMPT}\n\n`;
+    for (const msg of conversation) {
+      if (msg.role === 'user') {
+        conversationPrompt += `User: ${msg.content}\n\n`;
+      } else if (msg.role === 'assistant') {
+        conversationPrompt += `Assistant: ${msg.content}\n\n`;
+      }
+    }
+    conversationPrompt += `User: ${userMessage}\n\nAssistant:`;
     
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 30000); // 30 second timeout
     
     try {
-      var modelsLabChatResp = await fetch('https://modelslab.com/api/v6/chat/completions', {
+      var modelsLabChatResp = await fetch('https://modelslab.com/api/uncensored-chat/v1/completions', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${process.env.MODELSLAB_API_KEY}`,
@@ -161,17 +172,10 @@ app.post('/api/message', async (req, res) => {
         },
         body: JSON.stringify({
           model: 'aifeifei798/DarkIdol-Llama-3.1-8B-Instruct-1.2-Uncensored',
-          messages: [
-            { role: 'system', content: SYSTEM_PROMPT },
-            ...conversation,
-            { role: 'user', content: userMessage }
-          ],
+          prompt: conversationPrompt,
           max_tokens: 500,
           temperature: 0.9,
-          top_p: 0.95,
-          presence_penalty: 0,
-          frequency_penalty: 0,
-          stream: false
+          top_p: 0.95
         }),
         signal: controller.signal
       });
@@ -206,7 +210,7 @@ app.post('/api/message', async (req, res) => {
       });
     }
     
-    const fullResponse = modelsLabChatData.choices[0].message.content.trim();
+    const fullResponse = modelsLabChatData.choices[0].text.trim();
     
     // Check if response is empty
     if (!fullResponse) {
