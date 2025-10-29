@@ -171,9 +171,9 @@ app.post('/api/message', async (req, res) => {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: 'aifeifei798/DarkIdol-Llama-3.1-8B-Instruct-1.2-Uncensored',
+          model: 'ModelsLab/Llama-3.1-8b-Uncensored-Dare',
           prompt: conversationPrompt,
-          max_tokens: 500,
+          max_tokens: 800,
           temperature: 0.9,
           top_p: 0.95
         }),
@@ -199,7 +199,7 @@ app.post('/api/message', async (req, res) => {
     }
 
     const modelsLabChatData = await modelsLabChatResp.json();
-    console.log('ModelsLab Chat response:', JSON.stringify(modelsLabChatData).substring(0, 300));
+    console.log('ModelsLab Chat response:', JSON.stringify(modelsLabChatData).substring(0, 500));
     
     // Check if response has choices
     if (!modelsLabChatData.choices || modelsLabChatData.choices.length === 0) {
@@ -210,7 +210,18 @@ app.post('/api/message', async (req, res) => {
       });
     }
     
-    const fullResponse = modelsLabChatData.choices[0].text.trim();
+    // Check if text is null or empty
+    const responseText = modelsLabChatData.choices[0].text;
+    if (!responseText || responseText.trim() === '') {
+      console.error('Empty or null text in response. Finish reason:', modelsLabChatData.choices[0].finish_reason);
+      console.error('Full response:', JSON.stringify(modelsLabChatData));
+      return res.status(400).json({ 
+        error: 'Empty response',
+        textError: 'Luna generated an empty response. Please try rephrasing your message or making it shorter.'
+      });
+    }
+    
+    const fullResponse = responseText.trim();
     
     // Check if response is empty
     if (!fullResponse) {
